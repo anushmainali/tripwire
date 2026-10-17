@@ -1,26 +1,28 @@
 {
   "baseline": {
-    "n": 5,
+    "n": 11,
     "labels": {
-      "safe": 4,
-      "scam": 1
+      "safe": 6,
+      "scam": 5
     },
-    "accuracy": 0.6,
-    "successful_call_accuracy": 0.6,
-    "scam_precision": null,
-    "scam_recall": 0.0,
+    "accuracy": 0.45454545454545453,
+    "successful_call_accuracy": 0.5,
+    "scam_precision": 1.0,
+    "scam_recall": 0.4,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.25,
-    "error_count": 0,
-    "errors": {},
-    "median_latency_s": 1.1373,
+    "warning_false_positive_rate": 0.5,
+    "error_count": 1,
+    "errors": {
+      "gateway_incomplete_response": 1
+    },
+    "median_latency_s": 1.1936,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 0,
     "confusion_matrix": {
       "safe": {
         "safe": 3,
-        "suspicious": 1,
+        "suspicious": 3,
         "scam": 0
       },
       "suspicious": {
@@ -30,32 +32,33 @@
       },
       "scam": {
         "safe": 0,
-        "suspicious": 1,
-        "scam": 0
+        "suspicious": 3,
+        "scam": 2
       }
     }
   },
   "tripwire": {
-    "n": 3,
+    "n": 9,
     "labels": {
-      "safe": 3
+      "safe": 5,
+      "scam": 4
     },
-    "accuracy": 1.0,
-    "successful_call_accuracy": 1.0,
-    "scam_precision": null,
-    "scam_recall": null,
+    "accuracy": 0.5555555555555556,
+    "successful_call_accuracy": 0.5555555555555556,
+    "scam_precision": 1.0,
+    "scam_recall": 0.25,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.0,
+    "warning_false_positive_rate": 0.2,
     "error_count": 0,
     "errors": {},
-    "median_latency_s": 2.6254,
+    "median_latency_s": 21.1956,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
-    "failed_check_count": 0,
+    "failed_check_count": 1,
     "confusion_matrix": {
       "safe": {
-        "safe": 3,
-        "suspicious": 0,
+        "safe": 4,
+        "suspicious": 1,
         "scam": 0
       },
       "suspicious": {
@@ -65,8 +68,8 @@
       },
       "scam": {
         "safe": 0,
-        "suspicious": 0,
-        "scam": 0
+        "suspicious": 3,
+        "scam": 1
       }
     }
   }

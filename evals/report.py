@@ -5,6 +5,7 @@ import csv
 import json
 from pathlib import Path
 
+from evals.comparison import paired_outcomes, wilson
 from evals.metrics import LABELS, grouped, summarize
 
 
@@ -109,10 +110,11 @@ def report(run_dir: Path, destination: Path):
         selected = manifest.get("detonation_cases", [])
         det_rows = [r for r in droid_rows if r.get("detonation_requested")]
         screenshots = sum(bool(r.get("screenshot_path")) for r in det_rows)
+        navigated = sum((r.get("debug", {}).get("detonation") or {}).get("ok") is True for r in det_rows)
         lines += [
             "",
             f"Sandbox coverage: **{len(det_rows)}/{len(droid_rows)} cases requested detonation**; "
-            f"{screenshots} returned screenshot paths. Selected IDs: "
+            f"{screenshots} returned screenshot paths; {navigated} reported successful page capture. Selected IDs: "
             + (", ".join(f"`{case}`" for case in selected) or "none")
             + ".",
             "All other cases use the investigation path with sandbox detonation disabled. "
@@ -126,6 +128,31 @@ def report(run_dir: Path, destination: Path):
         "suspicious predictions. Missing denominators are N/A. Latency includes process startup and failures.",
         "Cost is **unknown**: the investigator does not expose complete billed token, Droid, and sandbox usage. "
         "Baseline token counts, when available, are retained in raw results; no price assumptions are substituted.",
+        "",
+    ]
+    pairs = paired_outcomes(rows)
+    lines += [
+        "## Paired outcomes and uncertainty",
+        "",
+        f"Both systems correct: {pairs['both_correct']}; baseline alone correct: {pairs['baseline_only']}; "
+        f"Tripwire alone correct: {pairs['tripwire_only']}; neither correct: {pairs['neither_correct']}.",
+        "",
+        "| System | Accuracy: 95% Wilson interval | Strict FPR: 95% Wilson interval |",
+        "|---|---:|---:|",
+    ]
+    for system in sorted(systems):
+        system_rows = [r for r in rows if r["system"] == system]
+        correct = sum(r["prediction"] == r["label"] and not r.get("error") for r in system_rows)
+        safe = [r for r in system_rows if r["label"] == "safe"]
+        fp = sum(r["prediction"] == "scam" for r in safe)
+        intervals = [wilson(correct, len(system_rows)), wilson(fp, len(safe))]
+        formatted = ["N/A" if interval is None else f"{pct(interval[0])}–{pct(interval[1])}" for interval in intervals]
+        lines.append(f"| {system} | " + " | ".join(formatted) + " |")
+    lines += [
+        "",
+        "Intervals describe binomial sampling uncertainty only. This selected convenience set is not a random "
+        "sample of incoming messages; the intervals do not account for selection bias, label uncertainty, "
+        "shared templates, or temporal drift. Zero observed false positives does not imply zero risk.",
         "",
     ]
     for system in sorted(systems):
