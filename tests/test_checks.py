@@ -96,3 +96,26 @@ def test_payment_crypto(monkeypatch):
 def test_script_job_scam():
     text = "Recruiter here: remote data-entry job, $350/day. Deposit 120 USDT to activate your account."
     assert check_script(text, extract(text)).scam_type == "job_or_check_scam"
+
+
+def test_fake_check_is_not_rental():
+    text = "Deposit our check and send the excess back as cryptocurrency before it clears."
+    assert check_script(text, extract(text)).scam_type == "job_or_check_scam"
+
+
+def test_rental_pattern():
+    text = "Wire $990 before viewing this apartment."
+    assert check_script(text, extract(text)).scam_type == "fake_landlord_rental"
+
+
+def test_rdap_http_error_is_failed_check(monkeypatch):
+    real = rdap.registration_date
+    monkeypatch.setattr(
+        rdap, "registration_date", lambda d, client=None: real(d, _mock_client(lambda r: httpx.Response(503)))
+    )
+    assert rdap.check_domain_age(["evil.top"])[0].ok is False
+    monkeypatch.setattr(
+        rdap, "registration_date", lambda d, client=None: real(d, _mock_client(lambda r: httpx.Response(404)))
+    )
+    ev = rdap.check_domain_age(["evil.top"])[0]
+    assert ev.ok and ev.severity == "yellow"

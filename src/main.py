@@ -38,6 +38,21 @@ def run_live() -> None:
     signal.signal(signal.SIGTERM, stop)
     log.info("Tripwire live on %s (%s). Polling every %.1fs.", channel.cfg.agent_handle, channel.cfg.platform, POLL_S)
 
+    def send_image(target, path: str) -> bool:
+        """Screenshot as an iMessage attachment; if Photon rejects it, send a hosted link instead."""
+        try:
+            if channel.send_image(target, path):
+                return True
+        except Exception as error:  # noqa: BLE001
+            log.warning("attachment send failed (%s); falling back to link", type(error).__name__)
+        from src.channels.shots import upload_screenshot
+
+        url = upload_screenshot(path)
+        if url:
+            channel.send_text(target, f"📸 Where the link really leads (opened safely in our sandbox): {url}")
+            return True
+        return False
+
     def work(msg: IncomingMessage, target) -> None:
         try:
             router.handle(
@@ -45,7 +60,7 @@ def run_live() -> None:
                 state,
                 send=lambda text: channel.send_text(target, text),
                 investigate=lambda m, ctx: investigate(m, context=ctx),
-                send_image=lambda path: channel.send_image(target, path),
+                send_image=lambda path: send_image(target, path),
             )
         except Exception:
             log.exception("failed handling %s", msg.message_id)

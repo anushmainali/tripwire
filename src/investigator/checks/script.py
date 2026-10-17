@@ -22,14 +22,16 @@ SCAM_TYPES: dict[str, list[str]] = {
         r"\bdmv\b.*\b(suspend|fine|penalt)",
     ],
     "fake_landlord_rental": [
-        r"\b(deposit|rent|lease|apartment|landlord|keys?)\b.*\b(zelle|venmo|cash ?app|wire|send|before)",
+        r"\b(rent|lease|apartment|landlord|keys?|viewing|tour|property)\b.*\b(zelle|venmo|cash ?app|wire|deposit)",
+        r"\b(deposit|wire|send)\b.*\b(rent|lease|apartment|viewing|landlord)\b",
         r"\bout of (the )?(country|town)\b.*\b(keys|apartment|house)",
     ],
     "job_or_check_scam": [
         r"\b(job|position|hiring|remote work|work from home|recruit\w*|data[- ]entry)\b"
         r".*(\$\d|\bper (day|hour|week)\b|/day|\bearn)",
-        r"\b(deposit|cash) (the|this) check\b",
-        r"\bsend (back|the rest|the difference)\b",
+        r"\b(deposit|cash|mobile[- ]deposit)\b.*\bche(ck|que)\b",
+        r"\b(send|wire|return|refund)\b.*\b(back|excess|overpay\w*|the rest|the difference)\b",
+        r"\bbefore it clears\b",
     ],
     "investment_romance": [
         r"\b(crypto|bitcoin|usdt|trading platform|investment|guaranteed (return|profit))\b",

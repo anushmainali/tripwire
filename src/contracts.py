@@ -52,6 +52,15 @@ class Verdict:
     debug: dict = field(default_factory=dict)
 
 
+def clip(text: str, limit: int) -> str:
+    """Shorten text to <= limit chars on a word boundary, with an ellipsis (never cuts mid-word)."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[: limit - 1].rsplit(" ", 1)[0].rstrip(",;:-—")
+    return cut + "…"
+
+
 def investigate(msg: IncomingMessage, context: str | None = None) -> Verdict:
     """Full Tripwire investigation. Implemented in src/investigator/orchestrator.py."""
     from src.investigator.orchestrator import investigate as _investigate
