@@ -1,0 +1,10 @@
+{
+  "code_sha256": "4d830fef5e891ac646c2ba5c2cd05d9d1f2a8cc4df1df1d30ab47e08dbeb6ada",
+  "dataset_sha256": "5e59891d020fa8e7c298c1312dc1dfa41f76089657dc15c5a9065240c7543a60",
+  "mode": "full",
+  "model": "anthropic/claude-haiku-5-5",
+  "full_run": false,
+  "cases": 8,
+  "created_at": "2026-10-17T18:04:41.602632+00:00",
+  "git_sha": "8fe302eda8183f6621644d1a8fc03b8d8bd75192"
+}

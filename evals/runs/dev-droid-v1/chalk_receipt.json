@@ -1,0 +1,5 @@
+{
+  "evaluation_id": "cmvcpo6xo028h014w88dmbbwc",
+  "records_sha256": "9f0c9a37824296dcffa3a3c46a4dd1d5ff9cbea11c3d16aa5a7175eded26eca5",
+  "method": "local inference; remote replay task and SQL scorers"
+}

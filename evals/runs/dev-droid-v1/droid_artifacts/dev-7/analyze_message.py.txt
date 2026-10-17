@@ -1,0 +1,23 @@
+import json
+import re
+from pathlib import Path
+
+
+root = Path(__file__).resolve().parent
+message = (root / "message.txt").read_text()
+entities = json.loads((root / "entities.json").read_text())
+
+patterns = {
+    "check_deposit_request": r"\bdeposit\s+our\s+check\b",
+    "excess_return_in_crypto": r"\bsend\s+the\s+excess\s+back\s+as\s+cryptocurrency\b",
+    "payment_before_clearance": r"\bbefore\s+it\s+clears\b",
+    "rental_context": r"\b(?:landlord|tenant|rental|rent|lease|apartment)\b",
+}
+evidence = {}
+for name, pattern in patterns.items():
+    match = re.search(pattern, message, re.IGNORECASE)
+    evidence[name] = match.group(0) if match else None
+
+target_keys = ("urls", "domains", "crypto_addresses")
+targets = {key: entities.get(key, []) for key in target_keys}
+print(json.dumps({"message_evidence": evidence, "lookup_targets": targets}, indent=2))
