@@ -59,7 +59,7 @@ iMessage ─► Photon (shared line; poll listMessages → sendMessage w/ idempo
        1. extract.py      URLs (incl. defanged), domains, phones, emails, Zelle/Venmo/CashApp handles,
                           BTC/ETH/TRON/SOL wallets, amounts, claimed brand
        2. checks/         link.py  – lookalike/typosquat, punycode/homoglyph, shorteners, risky TLDs, brand mismatch
-                          rdap.py  – domain age from the registry (RDAP); never touches the site
+                          rdap.py  – domain age via Chalk feature engine (online query), RDAP fallback
                           payment.py – blockchain explorer stats for wallets; P2P/irreversible rails
                           script.py – scam-script patterns: urgency, secrecy, gift cards/crypto, credential asks
                           intel.py – community memory: domains/wallets/handles flagged in other people's checks
@@ -123,7 +123,7 @@ orchestrator ──► prepare_case(): /tmp/tripwire-cases/<id>/{message.txt, en
 
 ## How we use Chalk
 
-Tripwire uses three Chalk products:
+Tripwire uses four Chalk products:
 
 1. **Sandboxes (link detonation)** — [`src/detonation/sandbox.py`](src/detonation/sandbox.py): every link is
    opened in a fresh gVisor-isolated `chalkcompute.Sandbox` built from a content-addressed `Image` (Debian +
@@ -136,6 +136,13 @@ Tripwire uses three Chalk products:
    `X-Chalk-Env-Id`. Claude Sonnet 5.5 writes the evidence-only verdict; Claude Haiku 5.5 is the cheap baseline.
 3. **Evaluations (benchmark)** — [`evals/`](evals/): a labeled dataset of 120 cases, and runs of baseline vs Tripwire
    that are uploaded and scored with Chalk Evaluations SQL scorers. See [Evals and results](#evals-and-results).
+
+4. **Feature engine (domain-risk features)** — [`chalk_features/domain_features.py`](chalk_features/domain_features.py):
+   a `Domain` feature class deployed with `chalk apply`. Brand-token, risky-TLD, hyphen and risk-point features are
+   Chalk expressions compiled to native code, and `registered_days_ago` comes from an `@online` resolver that queries
+   RDAP inside Chalk. At request time the investigator runs a Chalk online query (`domain.registered_days_ago`, about
+   150 ms warm) and falls back to a direct RDAP lookup if Chalk is unavailable
+   ([`src/investigator/checks/rdap.py`](src/investigator/checks/rdap.py)).
 
 We also host the demo's **fictional scam page** ("PostalPlus") and the screenshot-link fallback on a
 **Chalk ScalingGroup** ([`demo_site/`](demo_site/)), so the live demo never depends on a real criminal site.

@@ -129,3 +129,14 @@ def test_incoming_payment_notice_is_not_a_payment_request():
 def test_hi_mum_new_number():
     text = "Hi Mom, my phone broke, this is my temporary number. Can you help me pay a bill?"
     assert check_script(text, extract(text)).scam_type == "family_emergency"
+
+
+def test_domain_age_prefers_chalk(monkeypatch):
+    monkeypatch.setattr(rdap, "chalk_age_days", lambda d: 3)
+
+    def no_rdap(d, client=None):
+        raise AssertionError("should not call RDAP when Chalk answered")
+
+    monkeypatch.setattr(rdap, "registration_date", no_rdap)
+    ev = rdap.check_domain_age(["usps-fee.top"])
+    assert ev[0].severity == "red" and "3 days ago" in ev[0].finding

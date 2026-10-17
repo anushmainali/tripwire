@@ -1,13 +1,17 @@
 """Domain age via RDAP (rdap.org bootstrap -> the registry). Never contacts the suspicious site itself."""
 
+import logging
 from datetime import UTC, datetime
 
 import httpx
 
+from src import config
 from src.contracts import Evidence
 from src.investigator.checks.link import is_official
 from src.investigator.extract import registrable_domain
 
+log = logging.getLogger(__name__)
+_chalk_client = None
 RDAP_URL = "https://rdap.org/domain/{domain}"
 TIMEOUT_S = 6.0
 
@@ -27,6 +31,27 @@ def registration_date(domain: str, client: httpx.Client | None = None) -> dateti
     finally:
         if owns:
             client.close()
+
+
+def chalk_age_days(domain: str) -> int | None:
+    """Domain age served by the Chalk feature engine (chalk_features/domain_features.py). None = unavailable/unknown,
+    in which case the caller falls back to a direct RDAP lookup."""
+    if not config.chalk_features_enabled():
+        return None
+    try:
+        from chalk.client import ChalkClient
+
+        global _chalk_client
+        if _chalk_client is None:
+            _chalk_client = ChalkClient(default_request_timeout=4.0)
+        result = _chalk_client.query(input={"domain.id": domain}, output=["domain.registered_days_ago"])
+        if result.errors:
+            return None
+        value = result.get_feature_value("domain.registered_days_ago")
+        return int(value) if value is not None else None
+    except Exception as error:  # noqa: BLE001 — Chalk is an accelerator here, not a dependency
+        log.info("chalk feature query failed: %s", type(error).__name__)
+        return None
 
 
 def describe_age(days: int) -> str:
@@ -50,17 +75,18 @@ def check_domain_age(domains: list[str], now: datetime | None = None) -> list[Ev
         seen.add(reg)
         if len(seen) > 3:
             break
-        try:
-            created = registration_date(reg)
-        except (httpx.HTTPError, ValueError) as error:
-            out.append(
-                Evidence("rdap_domain_age", f"Couldn't look up {reg}'s age ({type(error).__name__})", "info", ok=False)
-            )
-            continue
-        if created is None:
-            out.append(Evidence("rdap_domain_age", f"No registration record found for {reg}", "yellow"))
-            continue
-        days = (now - created).days
+        days = chalk_age_days(reg)  # Chalk feature engine first (Domain.registered_days_ago)
+        if days is None:
+            try:
+                created = registration_date(reg)
+            except (httpx.HTTPError, ValueError) as error:
+                msg = f"Couldn't look up {reg}'s age ({type(error).__name__})"
+                out.append(Evidence("rdap_domain_age", msg, "info", ok=False))
+                continue
+            if created is None:
+                out.append(Evidence("rdap_domain_age", f"No registration record found for {reg}", "yellow"))
+                continue
+            days = (now - created).days
         when = describe_age(days)
         if days < 30:
             out.append(Evidence("rdap_domain_age", f"{reg} was registered {when}", "red"))

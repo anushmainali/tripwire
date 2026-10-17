@@ -96,6 +96,11 @@ def droid_model() -> str | None:
     return _get("TRIPWIRE_DROID_MODEL", required=False) or "claude-haiku-5-5"
 
 
+def chalk_features_enabled() -> bool:
+    """Query the Chalk feature engine for domain features (set TRIPWIRE_CHALK_FEATURES=0 to disable)."""
+    return (_get("TRIPWIRE_CHALK_FEATURES", required=False) or "1") != "0"
+
+
 def shot_token() -> str | None:
     """Shared token for uploading screenshots to the demo/screenshot host."""
     return _get("TRIPWIRE_SHOT_TOKEN", required=False)

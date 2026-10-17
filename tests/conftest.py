@@ -13,7 +13,8 @@ def no_heavy_steps(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def offline_lookups(request, monkeypatch):
-    """No RDAP / explorer network calls (tests that exercise these modules patch the client themselves)."""
+    """No Chalk / RDAP / explorer network calls (test_checks patches the HTTP clients itself)."""
+    monkeypatch.setattr(rdap, "chalk_age_days", lambda d: None)
     if request.module.__name__.endswith("test_checks"):
         return
     monkeypatch.setattr(rdap, "registration_date", lambda d, client=None: None)
