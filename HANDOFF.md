@@ -1,5 +1,12 @@
 # HANDOFF.md
 
+## FINAL REPORT FOR HUMAN
+**Works:** iMessage (Photon) -> investigation (checks + Factory Droid + Chalk sandbox detonation + Chalk Model Gateway verdict) -> reply with verdict, evidence, safe-verify step, screenshot report link (phone-verified 6:57 PM Sat). Chalk evals done (`evals/RESULTS.md`: tie 71.7% accuracy vs single-call baseline; fewer scam->safe misses, higher precision; no accuracy-win claim). Red team 8/8, false-alarm dev set, 126 tests + ruff green. Call co-pilot is an experimental, flag-gated, offline prototype (no voice transport).
+**Doesn't:** live voice calls; the image attachment send on the shared Photon line falls back to the hosted link.
+**Run:** `.venv/bin/python -m src.main` (only ONE poller), `.venv/bin/python -m scripts.demo_check [--warm]`, tests `.venv/bin/python -m pytest -q`.
+**Before 8 AM:** run `chalk login` if the session expired, `scripts.demo_check --warm` before judging, optionally one more phone test, paste SUBMISSION.md into Devpost and submit. (Draft written 7 PM Sat; refresh at 7:30 AM and tag v1.0.)
+
+
 > Keep this file short and current. Update after every commit. It is the only memory a restarted session has.
 
 ## NEEDS HUMAN
