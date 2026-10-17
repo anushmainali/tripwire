@@ -2,7 +2,6 @@
 
 import logging
 import time
-from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, wait
 
 from src.contracts import Entities, Evidence, IncomingMessage, Verdict
@@ -18,11 +17,8 @@ log = logging.getLogger(__name__)
 
 CHECK_TIMEOUT_S = 12.0
 TOTAL_BUDGET_S = 85.0
-
-# Optional heavier steps, registered by their modules so the orchestrator works without them.
-# Each takes (msg, entities, evidence_so_far, case_dir_info) and returns (list[Evidence], extras dict).
-Extra = Callable[[IncomingMessage, Entities, list[Evidence], dict], tuple[list[Evidence], dict]]
-EXTRA_STEPS: dict[str, Extra] = {}
+DETONATION_TIMEOUT_S = 60.0
+ALL_STEPS = ("detonation", "droid")
 
 
 def _safe_run(name: str, fn, *args) -> list[Evidence]:
@@ -48,35 +44,57 @@ def run_checks(text: str, entities: Entities) -> tuple[list[Evidence], str | Non
     return evidence, script.scam_type
 
 
+def _detonation_target(entities: Entities) -> str | None:
+    return entities.urls[0] if entities.urls else None
+
+
 def investigate(
     msg: IncomingMessage,
     context: str | None = None,
     use_llm: bool = True,
-    steps: list[str] | None = None,
+    steps: tuple[str, ...] | list[str] | None = None,
 ) -> Verdict:
+    """Full investigation. `steps` selects the heavy steps ("detonation", "droid"); [] = checks + verdict only."""
+    from src.detonation.report import detonation_evidence
+    from src.detonation.sandbox import detonate
+
+    steps = ALL_STEPS if steps is None else steps
     started = time.monotonic()
     entities = extract(msg.text)
+    pool = ThreadPoolExecutor(max_workers=2)
+    url = _detonation_target(entities)
+    det_future = pool.submit(detonate, url, DETONATION_TIMEOUT_S) if url and "detonation" in steps else None
     evidence, scam_type = run_checks(msg.text, entities)
     debug: dict = {"entities": entities.__dict__}
-    screenshot = None
     note = ""
-    for name in steps if steps is not None else list(EXTRA_STEPS):
-        step = EXTRA_STEPS.get(name)
-        if step is None:
-            continue
-        remaining = TOTAL_BUDGET_S - (time.monotonic() - started)
-        if remaining < 10:
-            note = "(Some checks were skipped to answer quickly.)"
-            break
+    if "droid" in steps:
+        from src.investigator.droid_agent import droid_investigate
+
+        remaining = TOTAL_BUDGET_S - (time.monotonic() - started) - 10
         try:
-            extra_ev, extras = step(msg, entities, evidence, {"budget_s": remaining})
+            droid_ev, extras = droid_investigate(msg, entities, evidence, det_future, timeout=min(75.0, remaining))
         except Exception as error:  # noqa: BLE001
-            log.warning("step %s failed: %s", name, error)
-            extra_ev, extras = [Evidence(name, f"The {name} step couldn't run", "info", ok=False)], {}
-        evidence += extra_ev
-        debug[name] = extras.get("debug")
-        screenshot = screenshot or extras.get("screenshot_path")
+            log.warning("droid step crashed: %s", error)
+            droid_ev, extras = (
+                [Evidence("droid_investigation", "The deep-investigation agent didn't finish", "info", ok=False)],
+                {},
+            )
+        evidence += droid_ev
+        debug["droid"] = extras.get("debug")
         scam_type = scam_type or extras.get("scam_type")
+    screenshot = None
+    if det_future is not None:
+        remaining = max(1.0, TOTAL_BUDGET_S - (time.monotonic() - started) - 5)
+        try:
+            det = det_future.result(timeout=remaining)
+            evidence += detonation_evidence(det, entities.claimed_brand)
+            screenshot = det.screenshot_path
+            debug["detonation"] = {k: v for k, v in det.__dict__.items() if k not in ("text_excerpt",)}
+        except Exception as error:  # noqa: BLE001
+            evidence.append(Evidence("detonation", "Opening the link in the sandbox timed out", "info", ok=False))
+            debug["detonation"] = {"error": type(error).__name__}
+            note = '(The link check is still running — reply "why" in a minute for details.)'
+    pool.shutdown(wait=False, cancel_futures=True)
     advice = safe_verify(entities.claimed_brand, scam_type)
     result = verdict_mod.build_verdict(
         msg.text, evidence, scam_type, advice, context, use_llm=use_llm, note=note, has_links=bool(entities.urls)

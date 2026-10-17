@@ -33,7 +33,7 @@ def test_usps_scam_deterministic():
 
 
 def test_benign_deterministic():
-    v = orchestrator.investigate(msg("Are we still on for dinner at 7?"), use_llm=False)
+    v = orchestrator.investigate(msg("Are we still on for dinner at 7?"), use_llm=False, steps=())
     assert v.label == "safe"
     assert "safe to pay" not in v.reply_text.lower()
 

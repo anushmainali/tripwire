@@ -42,3 +42,9 @@ def test_plain_message():
 def test_registrable_domain():
     assert registrable_domain("secure.login.paypal.com") == "paypal.com"
     assert registrable_domain("www.amazon.co.uk") == "amazon.co.uk"
+
+
+def test_brand_ignores_freemail_and_prefers_earliest():
+    e = extract("I'm Jessica, recruiter at Coinbase. Contact jess.hiring@gmail.com")
+    assert e.claimed_brand == "coinbase"
+    assert extract("Join our groups today").claimed_brand is None

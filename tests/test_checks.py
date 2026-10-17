@@ -91,3 +91,8 @@ def test_payment_crypto(monkeypatch):
     ev = payment.check_payment(extract("send 500 USDT to 0x52908400098527886E0F7030069857D2E4169EE7"))
     assert "crypto_request" in checks(ev)
     assert any("brand new" in e.finding for e in ev)
+
+
+def test_script_job_scam():
+    text = "Recruiter here: remote data-entry job, $350/day. Deposit 120 USDT to activate your account."
+    assert check_script(text, extract(text)).scam_type == "job_or_check_scam"
