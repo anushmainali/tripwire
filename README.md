@@ -50,6 +50,23 @@ official channel."
 
 ## How it works
 
+```mermaid
+flowchart TD
+    U[User forwards a suspicious text on iMessage] --> P[Photon shared line<br/>src/channels/photon.py]
+    P --> R[Router: help / why / context / new case<br/>src/channels/router.py]
+    R --> O[Orchestrator, 85 s budget<br/>src/investigator/orchestrator.py]
+    O --> C[Checks: link, domain age, payment, scam script<br/>src/investigator/checks/]
+    O --> D[Chalk Sandbox + headless Chromium<br/>src/detonation/]
+    O --> F[Factory Droid session per case<br/>src/investigator/droid_agent.py]
+    C --> V[Verdict via Chalk Model Gateway<br/>evidence-only, deterministic floor<br/>src/investigator/verdict.py]
+    D --> V
+    F --> V
+    V --> T[Text verdict + safe-verify step]
+    D --> S[Screenshot: attachment or mobile report page<br/>demo_site/app.py on a Chalk ScalingGroup]
+    T --> U
+    S --> U
+```
+
 ```
 iMessage ─► Photon (shared line; poll listMessages → sendMessage w/ idempotency keys)
               │   src/channels/photon.py · router.py (help / why / context / new case) · state.py (SQLite)
@@ -159,7 +176,8 @@ agent on Photon's shared line, using the `photonhq-api` Python client:
 - Replies go out through `projects.send_message` into the same Space. On the shared line threaded replies are
   rejected, so they're plain messages, each with an idempotency key.
 - Screenshots go through `projects.upload_attachment` + `SendAttachmentContent`. If the line rejects attachments,
-  Tripwire sends a link to the image on our Chalk-hosted site instead.
+  Tripwire sends a link to a branded mobile report page on our Chalk-hosted site instead (screenshot, final URL and
+  redirect chain, red flags). `python -m scripts.demo_check` verifies this whole path before a demo.
 - Per-sender thread state (last case, verdict, user context) lets `why` and context follow-ups work.
 - Investigations run on a small worker pool, so polling never blocks.
 

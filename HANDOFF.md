@@ -45,6 +45,7 @@ status-only HANDOFF updates when nothing changed.
    default, must not touch the text pipeline. Mark experimental.
 
 ## Status: Lead (Claude Code, `main`)
+- **19:15 Sat:** queue 3,4,5 DONE (grounded TLD wording; README Mermaid diagram; DEMO.md backups/shot list/fallback; docs/demo_run_log.txt from live demo_check). Remaining: queue 6 moonshot (call co-pilot, flag-gated, OFF) + phone re-test by human.
 - **18:50 Sat:** WORK QUEUE 1+2 DONE: `scripts/demo_check.py` (+`--warm`, in DEMO.md) passes live (37 s); hosted link is now a branded mobile report page (`/s/<id>`: screenshot, final URL/chain, red flags; image at `/s/<id>.jpg`); demo site redeployed. Next: queue 3 (evidence quality), 4 README, 5 demo assets.
 - **18:20 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Waiting only on phone re-test.
 - **18:10 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Still only waiting on phone re-test.
