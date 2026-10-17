@@ -1,75 +1,77 @@
 {
   "baseline": {
-    "n": 11,
+    "n": 22,
     "labels": {
-      "safe": 6,
-      "scam": 5
+      "safe": 9,
+      "scam": 10,
+      "suspicious": 3
     },
     "accuracy": 0.45454545454545453,
-    "successful_call_accuracy": 0.5,
-    "scam_precision": 1.0,
-    "scam_recall": 0.4,
+    "successful_call_accuracy": 0.5263157894736842,
+    "scam_precision": 0.625,
+    "scam_recall": 0.5,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.5,
-    "error_count": 1,
+    "warning_false_positive_rate": 0.4444444444444444,
+    "error_count": 3,
     "errors": {
-      "gateway_incomplete_response": 1
+      "gateway_incomplete_response": 3
     },
-    "median_latency_s": 1.1936,
+    "median_latency_s": 1.27265,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 0,
     "confusion_matrix": {
       "safe": {
-        "safe": 3,
-        "suspicious": 3,
+        "safe": 5,
+        "suspicious": 4,
         "scam": 0
       },
       "suspicious": {
         "safe": 0,
         "suspicious": 0,
-        "scam": 0
+        "scam": 3
       },
       "scam": {
         "safe": 0,
-        "suspicious": 3,
-        "scam": 2
+        "suspicious": 5,
+        "scam": 5
       }
     }
   },
   "tripwire": {
-    "n": 9,
+    "n": 20,
     "labels": {
-      "safe": 5,
-      "scam": 4
+      "safe": 9,
+      "scam": 8,
+      "suspicious": 3
     },
-    "accuracy": 0.5555555555555556,
-    "successful_call_accuracy": 0.5555555555555556,
-    "scam_precision": 1.0,
+    "accuracy": 0.55,
+    "successful_call_accuracy": 0.55,
+    "scam_precision": 0.6666666666666666,
     "scam_recall": 0.25,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.2,
+    "warning_false_positive_rate": 0.2222222222222222,
     "error_count": 0,
     "errors": {},
-    "median_latency_s": 21.1956,
+    "median_latency_s": 22.63275,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 1,
     "confusion_matrix": {
       "safe": {
-        "safe": 4,
-        "suspicious": 1,
+        "safe": 7,
+        "suspicious": 2,
         "scam": 0
       },
       "suspicious": {
         "safe": 0,
-        "suspicious": 0,
-        "scam": 0
+        "suspicious": 2,
+        "scam": 1
       },
       "scam": {
         "safe": 0,
-        "suspicious": 3,
-        "scam": 1
+        "suspicious": 6,
+        "scam": 2
       }
     }
   }

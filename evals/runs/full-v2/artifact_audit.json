@@ -1,0 +1,13 @@
+{
+  "method": "inert source capture and AST review hints; scripts are never executed by this audit",
+  "scripts": [
+    {
+      "case_id": "url-69188",
+      "file": "droid_artifacts/url-69188/analyze_page.py.txt",
+      "sha256": "64e5845fb334b603862fb188fbfbc3cab8e6c077bb1c6d60591e9df39ec79370",
+      "review_flags": []
+    }
+  ],
+  "script_cases": 1,
+  "flagged_scripts": 0
+}

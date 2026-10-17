@@ -86,6 +86,7 @@ def report(run_dir: Path, destination: Path):
     for title, key, fmt in [
         ("Cases", "n", str),
         ("Exact accuracy (failures incorrect)", "accuracy", pct),
+        ("Accuracy among successful calls", "successful_call_accuracy", pct),
         ("Scam precision", "scam_precision", pct),
         ("Scam recall", "scam_recall", pct),
         ("Strict false-positive rate", "false_positive_rate", pct),

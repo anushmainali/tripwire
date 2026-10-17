@@ -1,0 +1,94 @@
+import html.parser
+import json
+import os
+import re
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+PATH = os.path.join(HERE, "page.html")
+
+
+class Collector(html.parser.HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.forms = []
+        self.inputs = []
+        self.scripts_src = []
+        self.iframes = []
+        self.meta_refresh = []
+        self.hidden_style = 0
+        self.title = ""
+        self._in_title = False
+        self.text_parts = []
+        self._skip = 0
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "title":
+            self._in_title = True
+        if tag == "form":
+            self.forms.append({"action": a.get("action"), "method": a.get("method")})
+        if tag == "input":
+            self.inputs.append({"type": a.get("type"), "name": a.get("name")})
+        if tag == "script" and a.get("src"):
+            self.scripts_src.append(a["src"])
+        if tag == "iframe":
+            self.iframes.append(a.get("src"))
+        if tag == "meta" and (a.get("http-equiv") or "").lower() == "refresh":
+            self.meta_refresh.append(a.get("content"))
+        style = (a.get("style") or "").replace(" ", "").lower()
+        if "display:none" in style or "visibility:hidden" in style:
+            self.hidden_style += 1
+        if tag in ("script", "style"):
+            self._skip += 1
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._in_title = False
+        if tag in ("script", "style") and self._skip:
+            self._skip -= 1
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title += data
+        if not self._skip:
+            self.text_parts.append(data)
+
+
+def main():
+    if not os.path.exists(PATH):
+        print(json.dumps({"error": "page.html not found"}))
+        return
+    raw = open(PATH, encoding="utf-8", errors="replace").read()
+    p = Collector()
+    p.feed(raw)
+    text = " ".join(p.text_parts)
+    text = re.sub(r"\s+", " ", text).strip()
+    brands = [b for b in ["paypal", "amazon", "apple", "microsoft", "netflix",
+                          "bank", "dhl", "fedex", "usps", "irs", "gov"]
+              if re.search(r"\b" + b + r"\b", text + " " + raw, re.I)]
+    # Hosts referenced anywhere in the raw HTML
+    hosts = sorted(set(re.findall(r"https?://([A-Za-z0-9.-]+)", raw)))
+    # Base64 / long encoded blobs that could hide content
+    b64 = re.findall(r"[A-Za-z0-9+/]{80,}={0,2}", raw)
+    result = {
+        "bytes": len(raw),
+        "title": p.title.strip(),
+        "forms": p.forms,
+        "input_fields": p.inputs,
+        "password_or_card_inputs": [i for i in p.inputs
+                                    if (i.get("type") or "").lower() == "password"
+                                    or re.search(r"card|cvv|ssn|pass", i.get("name") or "", re.I)],
+        "external_script_srcs": p.scripts_src,
+        "iframes": p.iframes,
+        "meta_refresh": p.meta_refresh,
+        "hidden_style_elements": p.hidden_style,
+        "brand_terms_found": brands,
+        "hosts_in_html": hosts,
+        "long_base64_like_blobs": len(b64),
+        "visible_text_excerpt": text[:300],
+    }
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()
