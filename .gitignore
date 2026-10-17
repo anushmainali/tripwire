@@ -22,3 +22,7 @@ dist/
 .DS_Store
 .idea/
 .vscode/
+
+# Agent watchdog
+logs/
+.agent_stop
