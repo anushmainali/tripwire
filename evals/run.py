@@ -72,11 +72,11 @@ def child(send, row: dict, system: str, mode: str, model: str):
             result = {"prediction": "suspicious", "model": "stub", "error": "investigator_stub", "evidence": []}
         else:
             from src.contracts import IncomingMessage
-            from src.investigator.orchestrator import EXTRA_STEPS, investigate
+            from src.investigator.orchestrator import ALL_STEPS, investigate
 
-            if mode == "full" and "droid" not in EXTRA_STEPS:
-                raise RuntimeError("Droid not registered")
-            steps = [] if mode == "checks" else [name for name in EXTRA_STEPS if name != "detonation"]
+            if mode == "full" and "droid" not in ALL_STEPS:
+                raise RuntimeError("Droid not available")
+            steps = [] if mode == "checks" else [name for name in ALL_STEPS if name != "detonation"]
             if row.get("detonate") == "true":
                 raise RuntimeError("Detonation sample not enabled in this runner")
             verdict = investigate(IncomingMessage("eval-" + row["case_id"], "eval-offline", row["text"]), steps=steps)
@@ -168,10 +168,10 @@ def main():
     if args.full_run and args.mode != "full":
         parser.error("Full benchmark requires the real full investigator; use development cases for stubs/ablations.")
     if args.mode == "full":
-        from src.investigator.orchestrator import EXTRA_STEPS
+        from src.investigator.orchestrator import ALL_STEPS
 
-        if "droid" not in EXTRA_STEPS:
-            parser.error("Full investigator not ready: Droid is not registered; use --mode checks for development.")
+        if "droid" not in ALL_STEPS:
+            parser.error("Full investigator not ready: Droid is not available; use --mode checks for development.")
     rows = cases(args.full_run)
     if len(rows) > 150:
         parser.error("Maximum 150 cases")
