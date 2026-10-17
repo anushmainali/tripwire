@@ -1,29 +1,29 @@
 {
   "baseline": {
-    "n": 22,
+    "n": 29,
     "labels": {
-      "safe": 9,
-      "scam": 10,
+      "safe": 12,
+      "scam": 14,
       "suspicious": 3
     },
-    "accuracy": 0.45454545454545453,
-    "successful_call_accuracy": 0.5263157894736842,
-    "scam_precision": 0.625,
-    "scam_recall": 0.5,
+    "accuracy": 0.4827586206896552,
+    "successful_call_accuracy": 0.5833333333333334,
+    "scam_precision": 0.7272727272727273,
+    "scam_recall": 0.5714285714285714,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.4444444444444444,
-    "error_count": 3,
+    "warning_false_positive_rate": 0.5,
+    "error_count": 5,
     "errors": {
-      "gateway_incomplete_response": 3
+      "gateway_incomplete_response": 5
     },
-    "median_latency_s": 1.27265,
+    "median_latency_s": 1.283,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 0,
     "confusion_matrix": {
       "safe": {
-        "safe": 5,
-        "suspicious": 4,
+        "safe": 6,
+        "suspicious": 6,
         "scam": 0
       },
       "suspicious": {
@@ -33,34 +33,34 @@
       },
       "scam": {
         "safe": 0,
-        "suspicious": 5,
-        "scam": 5
+        "suspicious": 6,
+        "scam": 8
       }
     }
   },
   "tripwire": {
-    "n": 20,
+    "n": 27,
     "labels": {
-      "safe": 9,
-      "scam": 8,
+      "safe": 11,
+      "scam": 13,
       "suspicious": 3
     },
-    "accuracy": 0.55,
-    "successful_call_accuracy": 0.55,
-    "scam_precision": 0.6666666666666666,
-    "scam_recall": 0.25,
+    "accuracy": 0.5925925925925926,
+    "successful_call_accuracy": 0.5925925925925926,
+    "scam_precision": 0.8571428571428571,
+    "scam_recall": 0.46153846153846156,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.2222222222222222,
+    "warning_false_positive_rate": 0.2727272727272727,
     "error_count": 0,
     "errors": {},
-    "median_latency_s": 22.63275,
+    "median_latency_s": 22.5937,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 1,
     "confusion_matrix": {
       "safe": {
-        "safe": 7,
-        "suspicious": 2,
+        "safe": 8,
+        "suspicious": 3,
         "scam": 0
       },
       "suspicious": {
@@ -70,8 +70,8 @@
       },
       "scam": {
         "safe": 0,
-        "suspicious": 6,
-        "scam": 2
+        "suspicious": 7,
+        "scam": 6
       }
     }
   }

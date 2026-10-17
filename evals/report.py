@@ -122,6 +122,16 @@ def report(run_dir: Path, destination: Path):
             "Droid may be skipped by the production fast path when no analyzable artifacts or warning signs exist. "
             "A returned screenshot path does not by itself establish image quality or successful phone delivery.",
         ]
+    screenshot_audit = run_dir / "screenshot_audit.json"
+    if screenshot_audit.exists():
+        images = json.loads(screenshot_audit.read_text())
+        blank = sum(record.get("uniform_image", False) for record in images)
+        missing = sum(bool(record.get("image_error")) for record in images)
+        lines += [
+            f"Offline screenshot audit: {blank} near-uniform images and {missing} missing/undecodable images "
+            f"among {len(images)} sandbox requests. Saved images and dimensions are in `screenshot_audit.json`. "
+            "This audit does not establish successful iMessage attachment delivery.",
+        ]
     lines += [
         "",
         "Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall "
