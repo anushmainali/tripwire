@@ -20,6 +20,18 @@ POLL_S = 2.5
 log = logging.getLogger("tripwire")
 
 
+def cleanup_tmp(max_age_s: float = 86400) -> None:
+    """Delete case/detonation artifacts older than a day (they hold untrusted page HTML and screenshots)."""
+    import shutil
+    from pathlib import Path
+
+    now = time.time()
+    for root in (Path("/tmp/tripwire-cases"), Path("/tmp/tripwire-detonations")):
+        for d in root.glob("*") if root.exists() else []:
+            if d.is_dir() and now - d.stat().st_mtime > max_age_s:
+                shutil.rmtree(d, ignore_errors=True)
+
+
 def run_live(channel=None, state: State | None = None, max_polls: int | None = None, poll_s: float = POLL_S) -> None:
     """The live poller. `channel`/`state`/`max_polls` are injectable for offline tests."""
     from photon_api import ApiError
@@ -29,6 +41,8 @@ def run_live(channel=None, state: State | None = None, max_polls: int | None = N
 
         channel = PhotonChannel()
     state = state or State()
+    if max_polls is None:
+        cleanup_tmp()
     pool = ThreadPoolExecutor(max_workers=4)
     stopping = False
 

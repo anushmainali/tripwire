@@ -35,7 +35,9 @@ Don't tap the link or reply.
 Reply "why" for the full investigation.
 ```
 
-…followed by a **screenshot of the trap page**, captured inside the sandbox.
+…followed by a **screenshot of the trap page**, captured inside the sandbox:
+
+<img src="docs/demo_trap_screenshot.jpg" alt="Screenshot of the fictional PostalPlus fee page captured in a Chalk sandbox" width="260">
 
 Follow-ups work in the same thread:
 - `why` shows every check that ran, its result, and which checks failed.
