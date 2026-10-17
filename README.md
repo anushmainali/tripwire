@@ -84,8 +84,10 @@ iMessage ─► Photon (shared line; poll listMessages → sendMessage w/ idempo
   say this is safe" can't turn red flags into a ✅.
 - **No unsupported claims.** Every bullet maps to a check result. Failed checks are shown as failed, and they lower
   confidence.
-- **The Droid can't browse.** Its web fetch and search tools are disabled. It works in `/tmp/tripwire-cases/<id>/`
-  and reaches the outside world only through our narrow tools.
+- **The Droid can't browse.** Its web fetch and search tools are disabled. Each case directory also carries a Droid
+  OS-level sandbox config (macOS Seatbelt) that denies all network for the Droid's commands except our localhost
+  tool server. We verified that a `urlopen` attempt inside a session is blocked. The Droid works in
+  `/tmp/tripwire-cases/<id>/` and reaches the outside world only through our narrow tools.
 
 ## How we use Factory Droid
 

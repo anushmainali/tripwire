@@ -7,7 +7,8 @@ untrusted file), the deterministic check results, and custom in-process tools:
   - crypto_lookup: public blockchain explorer stats for a wallet
 It decides which extra analyses to run, writes and executes Python in the case directory (e.g. parsing the captured
 page HTML, comparing domains, decoding obfuscated text), and returns structured findings that become Evidence.
-Web fetch/search tools are disabled; the Droid must never contact the suspicious site directly.
+Web fetch/search tools are disabled, and each case dir carries a Droid sandbox config (OS-level, deny-all network
+except our localhost tool server), so the Droid's own commands can't contact the suspicious site.
 """
 
 import asyncio
@@ -38,6 +39,9 @@ DISABLED_TOOLS = {
     "FetchUrl", "WebSearch", "GenerateImage", "Task", "Skill", "CreateAutomation", "EditAutomation",
     "DeleteAutomation", "RunAutomation", "ProposeMission", "StartMissionRun", "Loop", "GenerateDroid",
 }  # fmt: skip
+
+
+DROID_SANDBOX_SETTINGS = {"sandbox": {"enabled": True, "network": {"allowedDomains": ["localhost", "127.0.0.1"]}}}
 
 
 class DroidFinding(BaseModel):
@@ -138,6 +142,10 @@ def prepare_case(msg: IncomingMessage, entities: Entities, evidence: list[Eviden
     (case_dir / "message.txt").write_text(msg.text)
     (case_dir / "entities.json").write_text(json.dumps(asdict(entities), indent=2))
     (case_dir / "checks.json").write_text(json.dumps([asdict(e) for e in evidence], indent=2))
+    # Enforce "never contact the suspicious site" at the OS level, not just in the prompt: Droid's sandbox
+    # (macOS Seatbelt) denies all network for the Droid's commands except our localhost MCP tool server.
+    (case_dir / ".factory").mkdir(exist_ok=True)
+    (case_dir / ".factory" / "settings.json").write_text(json.dumps(DROID_SANDBOX_SETTINGS))
     return case_dir
 
 
