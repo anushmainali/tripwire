@@ -57,3 +57,33 @@ def test_gateway_configuration_timeout_and_usage():
     assert factory.call_args.kwargs["default_headers"] == {"X-Chalk-Env-Id": "test-env"}
     client.chat.completions.create.assert_called_once()
     assert "temperature" not in client.chat.completions.create.call_args.kwargs
+
+
+@pytest.mark.parametrize("reason", ["length", "content_filter", None])
+def test_incomplete_response_is_rejected_even_when_content_looks_valid(reason):
+    client = MagicMock()
+    client.__enter__.return_value = client
+    client.chat.completions.create.return_value = SimpleNamespace(
+        choices=[SimpleNamespace(finish_reason=reason, message=SimpleNamespace(content="safe"))],
+    )
+    cfg = SimpleNamespace(api_key="fake", env_id="test-env", base_url="https://api.chalk.ai/v1/router")
+    with patch.object(llm.config, "chalk_router", return_value=cfg), patch.object(llm, "OpenAI", return_value=client):
+        result = llm.classify_detailed("A forwarded message")
+    assert result.label == "suspicious"
+    assert result.error == "gateway_incomplete_response"
+
+
+def test_provider_error_body_is_not_exposed():
+    import httpx
+    from openai import APIError
+
+    client = MagicMock()
+    client.__enter__.return_value = client
+    client.chat.completions.create.side_effect = APIError(
+        "private-provider-detail", request=httpx.Request("POST", "https://example.invalid"), body=None
+    )
+    cfg = SimpleNamespace(api_key="fake", env_id="test-env", base_url="https://api.chalk.ai/v1/router")
+    with patch.object(llm.config, "chalk_router", return_value=cfg), patch.object(llm, "OpenAI", return_value=client):
+        result = llm.classify_detailed("A forwarded message")
+    assert result.error == "gateway_unavailable"
+    assert "private-provider-detail" not in str(result)
