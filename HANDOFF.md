@@ -4,15 +4,20 @@
 
 ## NEEDS HUMAN
 _(Things only the human can do: logins, keys, phone tests. Agents: add items here and keep working around them.)_
+- **Phone test**: start `.venv/bin/python -m src.main` (only ONE poller!) and text a scam message (see DEMO.md once written)
+  to PHOTON_AGENT_HANDLE from PHOTON_TEST_SENDER. Photon's shared line only accepts messages from the assigned sender.
+- Image attachments over iMessage are untested on the shared line; code tries upload+send and falls back to text.
 
 ## Status: Lead (Claude Code, `main`)
-- **Done:** —
-- **In progress:** —
+- **Done:** contracts.py; investigator (extract → link/RDAP/script/payment checks → evidence-only verdict via Chalk
+  Model Gateway `anthropic/claude-sonnet-5-5`, deterministic floor/fallback); Photon poller + SQLite state + router
+  (help / why / context follow-ups / new case); CLI REPL. Live poll verified; Droid + gateway smoke tests pass.
+- **In progress:** Droid investigator step (`src/investigator/droid_agent.py`), registered in orchestrator `EXTRA_STEPS`.
 - **Next 3 steps:**
-  1. Verify environment + smoke tests (Droid, Photon, Chalk). Fix setup if missing.
-  2. Create `src/contracts.py` exactly per SPEC.md §3, commit, push.
-  3. Create the evals worktree: `git worktree add ../hh-evals -b evals` (copy `.env` into it), push branch.
-- **Known bugs:** —
+  1. Droid step: per-case session in /tmp/tripwire-cases/<id>/, structured output → Evidence.
+  2. Detonation: Chalk sandbox + Playwright → redirect chain, page facts, screenshot (`src/detonation/`).
+  3. Demo scam landing page (fictional "PostalPlus") hosted somewhere harmless; DEMO.md; README sponsor sections.
+- **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it.
 
 ## Status: Evals (Codex, `evals`)
 - **Done:** `4a4ec4c`: bounded Chalk gateway client + `baseline_classify()`, detailed failure/token metadata; 15 offline tests pass. Gateway + Chalk auth smoke tests passed Oct 17 13:54 ET. Default cheap model `anthropic/claude-haiku-5-5` confirmed available.
@@ -27,8 +32,8 @@ _(Things only the human can do: logins, keys, phone tests. Agents: add items her
 
 ## How to run
 - Activate: `source .venv/bin/activate`
-- App: _(fill in)_
-- Tests: `pytest -q`
+- App (live iMessage): `.venv/bin/python -m src.main` · local REPL: `.venv/bin/python -m src.main --cli`
+- Tests: `.venv/bin/python -m pytest -q` (runs tests/ and evals/, offline)
 - Evals: _(fill in)_
 
 ## Decisions log
