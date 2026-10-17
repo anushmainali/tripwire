@@ -18,12 +18,14 @@ _(Things only the human can do: logins, keys, phone tests. Agents: add items her
 - **For Evals lane:** `investigate(msg)` = full pipeline (Droid ~50 s + sandbox, costs quota).
   `from src.investigator.orchestrator import investigate; investigate(msg, steps=())` = checks + LLM verdict only
   (~3 s); `steps=("detonation",)` adds the sandbox only. Suggest: full pipeline on ≤ 40 cases, checks+LLM on all.
+- **Done (docs):** README (sponsor sections), DEMO.md (script + exact messages), SUBMISSION.md (results TBD from evals).
+  85 s budget enforced; Droid skipped for chit-chat; Photon attachment upload verified live (multipart/related).
 - **Next 3 steps:**
-  1. README (sponsor sections), DEMO.md, SUBMISSION.md drafts.
-  2. Robustness: 90 s hard cap with progress message, prompt-injection tests, image-only messages, rate limits.
-  3. Warm sandbox to cut detonation latency; "why" shows Droid analyses.
+  1. Hardening: most-suspicious URL first, "still checking" progress msg, per-sender rate limit, why shows Droid work.
+  2. Image/screenshot forwarding: download Photon attachment → vision transcription via gateway → investigate.
+  3. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
 - **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on
-  shared line untested (falls back to hosted link).
+  shared line: upload verified, send untested until a phone test (falls back to hosted link).
 
 ## Status: Evals (Codex, `evals`)
 - **Done:** Chalk gateway + baseline (`src/llm.py`); 120 frozen labeled cases (`evals/fixtures/`, 60 safe / 50 scam / 10 suspicious), provenance + licenses + metric policy in `evals/DATASET.md`; resumable bounded-process runner; remote Chalk task + eight SQL scorers; report/chart/raw CSV generators. 54 offline tests pass; ruff clean.
