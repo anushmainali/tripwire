@@ -91,7 +91,13 @@ def check_links(entities: Entities) -> list[Evidence]:
                 Evidence("url_shortener", f"{reg} is a link shortener that hides the real destination", "yellow")
             )
         if tld in SUSPICIOUS_TLDS:
-            out.append(Evidence("suspicious_tld", f".{tld} domains are cheap and common in scam texts", "yellow"))
+            out.append(
+                Evidence(
+                    "suspicious_tld",
+                    f"The link ends in .{tld}, an unusual ending for a business or official notice",
+                    "yellow",
+                )
+            )
         if host.count(".") >= 4 or len(host) > 40:
             out.append(Evidence("long_host", f"{host} is an unusually long, nested address", "yellow"))
         claimed = entities.claimed_brand

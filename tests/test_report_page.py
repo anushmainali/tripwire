@@ -28,3 +28,12 @@ def test_report_meta_from_verdict():
     assert meta["flags"] == [{"t": "bad", "s": "red"}] and meta["final_url"] == "http://x.test"
     json.dumps(meta)
     base64.b64encode(json.dumps(meta).encode())
+
+
+def test_clip_never_cuts_mid_word():
+    from src.contracts import clip
+
+    out = clip("The linked page asks for your full card number and CVV to pay a tiny fee right now", 40)
+    assert (
+        out.endswith("…") and out[:-1].split()[-1] in "The linked page asks for your full card number and CVV".split()
+    )
