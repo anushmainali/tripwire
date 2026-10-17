@@ -7,6 +7,7 @@ fallback (LLM down) and a floor (forwarded text can't talk the model into "safe"
 
 import json
 import logging
+import re
 
 from src.contracts import Confidence, Evidence, Label, Verdict, clip
 from src.investigator import gateway
@@ -35,6 +36,11 @@ Return ONLY a JSON object:
  "script_finding": string or null, "script_severity": "red|yellow|green" or null,
  "cite": [evidence ids, most important first, max 3],
  "bullets": {"<id>": "plain-English rewrite of that finding, <= 18 words, no new facts"}}"""
+
+
+def neutralize(text: str) -> str:
+    """Untrusted text can't close our <forwarded_message> wrapper (delimiter-escape injection)."""
+    return re.sub(r"<\s*/?\s*forwarded_message\s*>", "[tag removed]", text, flags=re.IGNORECASE)
 
 
 def score(evidence: list[Evidence]) -> tuple[Label, Confidence]:
@@ -114,7 +120,7 @@ def _llm(text, evidence, scam_type, context, det_label, debug, timeout=25.0):
         for i, e in enumerate(evidence)
     ]
     user = (
-        f"<forwarded_message>\n{text[:4000]}\n</forwarded_message>\n\n"
+        f"<forwarded_message>\n{neutralize(text[:4000])}\n</forwarded_message>\n\n"
         f"USER CONTEXT: {json.dumps(context) if context else 'none'}\n"
         f"PATTERN MATCH: {scam_type or 'none'}\n"
         f"EVIDENCE: {json.dumps(ev_json)}"
