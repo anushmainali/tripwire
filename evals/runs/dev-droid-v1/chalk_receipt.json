@@ -1,5 +1,35 @@
 {
   "evaluation_id": "cmvcpo6xo028h014w88dmbbwc",
   "records_sha256": "9f0c9a37824296dcffa3a3c46a4dd1d5ff9cbea11c3d16aa5a7175eded26eca5",
-  "method": "local inference; remote replay task and SQL scorers"
+  "method": "local inference; remote replay task and SQL scorers",
+  "run_id": "8ac9bf90-1609-45f7-be00-c173d4a8e6aa",
+  "status": "EvaluationRunStatus.SUCCEEDED",
+  "environment_id": "nknw3e7ec17c",
+  "result_dataset_id": "979c9f14-3c91-55de-8f20-c5940507f867",
+  "result_dataset_revision_id": "aed185b2-94b7-4ad5-8daa-2926a1713b6c",
+  "rows": 16,
+  "row_errors": 0,
+  "columns": [
+    "case_id",
+    "expected",
+    "forwarded_text",
+    "inference_error",
+    "latency_s",
+    "prediction",
+    "source",
+    "system",
+    "__chalk__session_id__",
+    "__chalk__task_session_id__",
+    "output",
+    "output_error",
+    "correct_value",
+    "safe_case_value",
+    "scam_case_value",
+    "scam_prediction_value",
+    "scam_tp_value",
+    "false_positive_value",
+    "warning_fp_value",
+    "inference_failed_value"
+  ],
+  "verified": true
 }
