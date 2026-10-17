@@ -16,7 +16,8 @@ from src.investigator.safe_verify import safe_verify
 log = logging.getLogger(__name__)
 
 CHECK_TIMEOUT_S = 12.0
-TOTAL_BUDGET_S = 85.0
+TOTAL_BUDGET_S = 85.0  # hard cap for the whole investigation (spec: answer within 90 s)
+VERDICT_RESERVE_S = 18.0  # time kept back for the verdict LLM call
 DETONATION_TIMEOUT_S = 60.0
 ALL_STEPS = ("detonation", "droid")
 
@@ -44,6 +45,14 @@ def run_checks(text: str, entities: Entities) -> tuple[list[Evidence], str | Non
     return evidence, script.scam_type
 
 
+def worth_deep_dive(entities: Entities, evidence: list[Evidence]) -> bool:
+    """Run the Droid only when there's something to investigate (skips plain chit-chat for a fast reply)."""
+    has_artifacts = any(
+        (entities.urls, entities.crypto_addresses, entities.payment_handles, entities.phones, entities.emails)
+    )
+    return has_artifacts or any(e.severity in ("red", "yellow") for e in evidence)
+
+
 def _detonation_target(entities: Entities) -> str | None:
     return entities.urls[0] if entities.urls else None
 
@@ -67,10 +76,14 @@ def investigate(
     evidence, scam_type = run_checks(msg.text, entities)
     debug: dict = {"entities": entities.__dict__}
     note = ""
-    if "droid" in steps:
+
+    def left(reserve: float = VERDICT_RESERVE_S) -> float:
+        return TOTAL_BUDGET_S - (time.monotonic() - started) - reserve
+
+    if "droid" in steps and worth_deep_dive(entities, evidence) and left() > 20:
         from src.investigator.droid_agent import droid_investigate
 
-        remaining = TOTAL_BUDGET_S - (time.monotonic() - started) - 10
+        remaining = left()
         try:
             droid_ev, extras = droid_investigate(msg, entities, evidence, det_future, timeout=min(75.0, remaining))
         except Exception as error:  # noqa: BLE001
@@ -84,9 +97,8 @@ def investigate(
         scam_type = scam_type or extras.get("scam_type")
     screenshot = None
     if det_future is not None:
-        remaining = max(1.0, TOTAL_BUDGET_S - (time.monotonic() - started) - 5)
         try:
-            det = det_future.result(timeout=remaining)
+            det = det_future.result(timeout=max(1.0, left()))
             evidence += detonation_evidence(det, entities.claimed_brand)
             screenshot = det.screenshot_path
             debug["detonation"] = {k: v for k, v in det.__dict__.items() if k not in ("text_excerpt",)}
@@ -97,7 +109,15 @@ def investigate(
     pool.shutdown(wait=False, cancel_futures=True)
     advice = safe_verify(entities.claimed_brand, scam_type)
     result = verdict_mod.build_verdict(
-        msg.text, evidence, scam_type, advice, context, use_llm=use_llm, note=note, has_links=bool(entities.urls)
+        msg.text,
+        evidence,
+        scam_type,
+        advice,
+        context,
+        use_llm=use_llm,
+        note=note,
+        has_links=bool(entities.urls),
+        llm_timeout=max(8.0, left(reserve=0)),
     )
     result.screenshot_path = screenshot
     result.debug.update(debug)

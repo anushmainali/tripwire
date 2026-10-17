@@ -70,3 +70,23 @@ def test_llm_failure_falls_back(monkeypatch):
     monkeypatch.setattr(gateway, "chat_json", boom)
     v = build_verdict("t", [Evidence("a", "bad", "red"), Evidence("b", "bad", "red")], None, "x")
     assert v.label == "scam" and v.debug["llm_error"] == "TimeoutError"
+
+
+def test_deep_dive_only_when_worth_it():
+    from src.investigator.extract import extract
+
+    benign = extract("see you at dinner")
+    assert not orchestrator.worth_deep_dive(benign, [])
+    assert orchestrator.worth_deep_dive(extract("pay at https://x.top"), [])
+    assert orchestrator.worth_deep_dive(benign, [Evidence("urgency", "fast", "yellow")])
+
+
+def test_droid_skipped_for_chitchat(monkeypatch):
+    import src.investigator.droid_agent as droid
+
+    def boom(*a, **k):
+        raise AssertionError("droid should not run")
+
+    monkeypatch.setattr(droid, "droid_investigate", boom)
+    v = orchestrator.investigate(msg("See you at dinner at 7!"), use_llm=False, steps=("droid",))
+    assert v.label == "safe"

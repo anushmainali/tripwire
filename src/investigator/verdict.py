@@ -87,6 +87,7 @@ def build_verdict(
     use_llm: bool = True,
     note: str = "",
     has_links: bool = True,
+    llm_timeout: float = 25.0,
 ) -> Verdict:
     det_label, det_conf = score(evidence)
     debug: dict = {"deterministic": [det_label, det_conf]}
@@ -94,7 +95,9 @@ def build_verdict(
     bullets = [e.finding for e in _top(evidence)]
     if use_llm:
         try:
-            label, confidence, scam_type, bullets, evidence = _llm(text, evidence, scam_type, context, det_label, debug)
+            label, confidence, scam_type, bullets, evidence = _llm(
+                text, evidence, scam_type, context, det_label, debug, llm_timeout
+            )
         except Exception as error:  # noqa: BLE001 — any LLM failure falls back to the deterministic verdict
             log.warning("verdict LLM failed: %s", type(error).__name__)
             debug["llm_error"] = type(error).__name__
@@ -105,7 +108,7 @@ def build_verdict(
     return Verdict(label, confidence, scam_type, evidence, safe_verify, reply, debug=debug)
 
 
-def _llm(text, evidence, scam_type, context, det_label, debug):
+def _llm(text, evidence, scam_type, context, det_label, debug, timeout=25.0):
     ev_json = [
         {"id": i, "check": e.check, "finding": e.finding, "severity": e.severity, "ran": e.ok}
         for i, e in enumerate(evidence)
@@ -116,7 +119,7 @@ def _llm(text, evidence, scam_type, context, det_label, debug):
         f"PATTERN MATCH: {scam_type or 'none'}\n"
         f"EVIDENCE: {json.dumps(ev_json)}"
     )
-    out = gateway.chat_json(SYSTEM, user)
+    out = gateway.chat_json(SYSTEM, user, timeout=min(timeout, 25.0))
     debug["llm"] = out
     label = out.get("label") if out.get("label") in RANK else det_label
     confidence = out.get("confidence") if out.get("confidence") in ("low", "medium", "high") else "medium"
