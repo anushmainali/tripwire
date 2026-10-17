@@ -27,6 +27,7 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
+- **18:20 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Waiting only on phone re-test.
 - **18:10 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Still only waiting on phone re-test.
 - **18:00 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Still only waiting on phone re-test.
 - **17:50 Sat:** resumed; origin/evals has no new commits; tests pass, ruff clean. Waiting only on phone re-test.
