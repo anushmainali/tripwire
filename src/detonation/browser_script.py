@@ -55,6 +55,7 @@ def main(url: str, out_dir: str) -> None:
                 page.wait_for_load_state("networkidle", timeout=5000)
             except Exception:  # noqa: BLE001 — busy pages never go idle; facts so far are enough
                 pass
+            page.wait_for_timeout(800)  # let late paints/JS render before probing and capturing
             facts = page.evaluate(PROBE)
             inputs = facts["inputs"]
             text = facts["text"].lower()

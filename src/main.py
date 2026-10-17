@@ -68,7 +68,12 @@ def run_live(channel=None, state: State | None = None, max_polls: int | None = N
             if channel.send_image(target, path):
                 return True
         except Exception as error:  # noqa: BLE001
-            log.warning("attachment send failed (%s); falling back to link", type(error).__name__)
+            log.warning(
+                "attachment send failed (%s status=%s body=%.200s); falling back to link",
+                type(error).__name__,
+                getattr(error, "status", None),
+                str(getattr(error, "body", ""))[:200],
+            )
         from src.channels.shots import upload_screenshot
 
         url = upload_screenshot(path)

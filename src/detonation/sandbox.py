@@ -47,7 +47,42 @@ def _sandbox():
     )
 
 
+def valid_screenshot(path: str | Path | None) -> bool:
+    """A usable screenshot is a decodable image of non-trivial size that is not one solid colour (blank page)."""
+    if not path:
+        return False
+    try:
+        from PIL import Image as PILImage
+        from PIL import ImageStat
+
+        p = Path(path)
+        if p.stat().st_size < 4000:
+            return False
+        with PILImage.open(p) as im:
+            if min(im.size) < 100:
+                return False
+            return max(ImageStat.Stat(im.convert("L")).stddev) > 3.0
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def detonate(url: str, timeout_s: float = 60.0) -> DetonationResult:
+    """Detonate once; if the page opened but the screenshot is blank/invalid, retry once, then drop the screenshot."""
+    started = time.monotonic()
+    result = _detonate_once(url, timeout_s)
+    if result.ok and not valid_screenshot(result.screenshot_path):
+        left = timeout_s - (time.monotonic() - started)
+        if left > 25:
+            retry = _detonate_once(url, left)
+            if retry.ok:
+                result = retry
+        if not valid_screenshot(result.screenshot_path):
+            log.info("screenshot invalid/blank; not sending one")
+            result.screenshot_path = None
+    return result
+
+
+def _detonate_once(url: str, timeout_s: float = 60.0) -> DetonationResult:
     if not url.lower().startswith(("http://", "https://")):
         url = "http://" + url
     started = time.monotonic()
@@ -71,11 +106,14 @@ def detonate(url: str, timeout_s: float = 60.0) -> DetonationResult:
             ("shot.jpg", "shot.jpg", "screenshot_path"),
             ("page.html", "page.html", "html_path"),
         ):
-            try:
-                (out_dir / local).write_bytes(sandbox.fs.read_bytes(f"{REMOTE_DIR}/{remote}", timeout_secs=20))
-                setattr(result, attr, str(out_dir / local))
-            except Exception as error:  # noqa: BLE001
-                log.info("no %s from sandbox: %s", remote, type(error).__name__)
+            for attempt in range(2):
+                try:
+                    (out_dir / local).write_bytes(sandbox.fs.read_bytes(f"{REMOTE_DIR}/{remote}", timeout_secs=20))
+                    setattr(result, attr, str(out_dir / local))
+                    break
+                except Exception as error:  # noqa: BLE001
+                    log.info("no %s from sandbox (try %d): %s", remote, attempt + 1, type(error).__name__)
+                    time.sleep(1)
         result.duration_s = round(time.monotonic() - started, 2)
         return result
     except Exception as error:  # noqa: BLE001
