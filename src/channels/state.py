@@ -19,6 +19,7 @@ class State:
             Path(path).parent.mkdir(parents=True, exist_ok=True)
         self._db = sqlite3.connect(str(path), check_same_thread=False)
         self._lock = threading.Lock()
+        self._hits: dict[str, list[float]] = {}
         with self._lock:
             self._db.executescript(
                 """
@@ -36,9 +37,23 @@ class State:
             self._db.commit()
             return cur.rowcount == 1
 
+    def allow(self, sender: str, limit: int = 12, window_s: float = 600) -> bool:
+        """Per-sender rate limit on investigations (protects shared Droid/Chalk quotas)."""
+        now = time.time()
+        with self._lock:
+            hits = [t for t in self._hits.get(sender, []) if now - t < window_s]
+            if len(hits) >= limit:
+                self._hits[sender] = hits
+                return False
+            self._hits[sender] = [*hits, now]
+            return True
+
     def save_case(self, sender: str, text: str, verdict: Verdict, context: str | None = None) -> None:
         data = asdict(verdict)
-        data["debug"] = {k: v for k, v in data.get("debug", {}).items() if k in ("latency_s", "deterministic")}
+        debug = data.get("debug", {})
+        droid = debug.get("droid") or {}
+        data["debug"] = {k: v for k, v in debug.items() if k in ("latency_s", "deterministic")}
+        data["debug"]["droid"] = {k: droid[k] for k in ("analyses_run", "scripts_written") if k in droid}
         with self._lock:
             self._db.execute(
                 "insert or replace into threads values (?, ?, ?, ?, ?)",

@@ -6,11 +6,11 @@ from concurrent.futures import ThreadPoolExecutor, wait
 
 from src.contracts import Entities, Evidence, IncomingMessage, Verdict
 from src.investigator import verdict as verdict_mod
-from src.investigator.checks.link import check_links
+from src.investigator.checks.link import check_links, is_official, lookalike_brand
 from src.investigator.checks.payment import check_payment
 from src.investigator.checks.rdap import check_domain_age
 from src.investigator.checks.script import check_script
-from src.investigator.extract import extract
+from src.investigator.extract import extract, host_of
 from src.investigator.safe_verify import safe_verify
 
 log = logging.getLogger(__name__)
@@ -54,7 +54,17 @@ def worth_deep_dive(entities: Entities, evidence: list[Evidence]) -> bool:
 
 
 def _detonation_target(entities: Entities) -> str | None:
-    return entities.urls[0] if entities.urls else None
+    """Detonate the most suspicious link: lookalikes first, then unknown domains, official domains last."""
+    if not entities.urls:
+        return None
+
+    def rank(url: str) -> int:
+        host = host_of(url)
+        if lookalike_brand(host):
+            return 0
+        return 2 if is_official(host) else 1
+
+    return min(entities.urls, key=rank)
 
 
 def investigate(

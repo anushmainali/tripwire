@@ -49,3 +49,40 @@ def test_why_without_case():
 def test_dedupe():
     s = State(":memory:")
     assert s.mark_seen("a") and not s.mark_seen("a")
+
+
+def test_rate_limit():
+    s = State(":memory:")
+    assert all(s.allow("x", limit=3) for _ in range(3))
+    assert not s.allow("x", limit=3) and s.allow("y", limit=3)
+
+
+def test_progress_message(monkeypatch):
+    import time as _t
+
+    monkeypatch.setattr(router, "PROGRESS_AFTER_S", 0.05)
+    sent = []
+
+    def slow(msg, ctx):
+        _t.sleep(0.2)
+        return Verdict("safe", "low", None, [], "x", "VERDICT")
+
+    router.handle(IncomingMessage("p1", "+1", "check https://a.top"), State(":memory:"), sent.append, slow)
+    assert sent == [router.ACK, router.PROGRESS_LINK, "VERDICT"]
+
+
+def test_detonation_target_prefers_lookalike():
+    from src.investigator.extract import extract
+    from src.investigator.orchestrator import _detonation_target
+
+    e = extract("see https://www.usps.com and pay at https://usps-fee.top/x or https://random-site.net")
+    assert _detonation_target(e) == "https://usps-fee.top/x"
+
+
+def test_why_shows_droid_work():
+    state = State(":memory:")
+    droid = {"analyses_run": ["parsed page.html"], "scripts_written": ["analyze_page.py"]}
+    v = Verdict("scam", "high", None, [Evidence("x", "bad", "red")], "go", "V", debug={"droid": droid})
+    state.save_case("+1", "text", v)
+    out = router.format_why(state.last_case("+1")[2])
+    assert "parsed page.html" in out and "analyze_page.py" in out

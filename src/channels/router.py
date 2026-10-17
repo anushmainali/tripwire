@@ -4,6 +4,7 @@ Pure logic: I/O is injected (`send`, `send_image`, `investigate`) so it's testab
 """
 
 import logging
+import threading
 from collections.abc import Callable
 
 from src.channels.state import State
@@ -20,6 +21,9 @@ HELP = (
     "Then I'll tell you what I found and how to double-check through an official channel."
 )
 ACK = "Investigating… 🔍"
+PROGRESS = "Still checking — digging into the details. ⏳"
+PROGRESS_LINK = "Still checking — I'm opening the link in a sealed sandbox so you don't have to. ⏳"
+PROGRESS_AFTER_S = 35.0
 HELP_WORDS = {"help", "hi", "hello", "hey", "start", "?", "what is this", "what do you do", "info"}
 WHY_WORDS = {"why", "why?", "details", "more", "explain", "full", "full report"}
 ICON = {"red": "🔴", "yellow": "🟡", "green": "🟢", "info": "⚪️"}
@@ -27,10 +31,22 @@ ICON = {"red": "🔴", "yellow": "🟡", "green": "🟢", "info": "⚪️"}
 Send = Callable[[str], None]
 
 
+def _safe(send: "Send", text: str) -> None:
+    try:
+        send(text)
+    except Exception as error:  # noqa: BLE001
+        log.warning("progress send failed: %s", error)
+
+
 def format_why(verdict: Verdict) -> str:
     lines = [f"Full investigation — verdict: {verdict.label.upper()} ({verdict.confidence} confidence)"]
     if verdict.scam_type:
         lines.append(f"Pattern: {verdict.scam_type.replace('_', ' ')}")
+    droid = verdict.debug.get("droid") or {}
+    if droid.get("analyses_run"):
+        lines += ["", "🤖 Investigator agent (Factory Droid) ran:"] + [f"• {a}" for a in droid["analyses_run"][:5]]
+    if droid.get("scripts_written"):
+        lines.append(f"Scripts it wrote: {', '.join(droid['scripts_written'][:5])}")
     lines.append("")
     ran = [e for e in verdict.evidence if e.ok]
     failed = [e for e in verdict.evidence if not e.ok]
@@ -73,6 +89,9 @@ def handle(
     if norm in WHY_WORDS:
         send(format_why(last[2]) if last else "I don't have a recent investigation for you. Forward me a message!")
         return None
+    if not state.allow(msg.sender):
+        send("You've sent a lot of checks in a short time — give me a few minutes and try again.")
+        return None
     context = None
     target_text = text
     if last and looks_like_context(text):
@@ -82,7 +101,14 @@ def handle(
     else:
         send(ACK)
     case = IncomingMessage(msg.message_id, msg.sender, target_text, msg.space_id, msg.received_at)
-    verdict = investigate(case, context)
+    progress = PROGRESS_LINK if extract(target_text).urls else PROGRESS
+    timer = threading.Timer(PROGRESS_AFTER_S, lambda: _safe(send, progress))
+    timer.daemon = True
+    timer.start()
+    try:
+        verdict = investigate(case, context)
+    finally:
+        timer.cancel()
     send(verdict.reply_text)
     if verdict.screenshot_path and send_image is not None:
         try:
