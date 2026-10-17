@@ -37,8 +37,10 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - **Done (hardening):** most-suspicious URL detonated; "still checking" msg after 35 s; per-sender rate limit (12/10 min);
   `why` lists Droid analyses + scripts; screenshot forwarding (Photon attachment → vision via gateway `/v1/messages`);
   live prompt-injection red team 8/8 (`python -m scripts.redteam` → docs/REDTEAM.md); wrapper-escape neutralized.
+- **Done:** context re-check verified live (scam → suspicious with context note, no blind flip); offline e2e test of
+  `run_live`; community intel memory (`src/investigator/intel.py`, data/intel.db, live only via `intel=True`).
 - **Next 3 steps:**
-  1. Live test context follow-up flow; fake-channel e2e test of `run_live`.
+  1. Optional: Chalk feature-engine mirror of intel (no feature deployment exists in env yet — risky).
   2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
   3. Polish (warm sandbox?), then moonshot only if all green.
 - **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on

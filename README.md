@@ -62,6 +62,8 @@ iMessage ─► Photon (shared line; poll listMessages → sendMessage w/ idempo
                           rdap.py  – domain age from the registry (RDAP); never touches the site
                           payment.py – blockchain explorer stats for wallets; P2P/irreversible rails
                           script.py – scam-script patterns: urgency, secrecy, gift cards/crypto, credential asks
+                          intel.py – community memory: domains/wallets/handles flagged in other people's checks
+                                     (indicator + label + salted reporter hash only, never message text)
        3. ─┬─► detonation/ (starts immediately, in parallel)
            │     Chalk Sandbox (gVisor) + headless Chromium as an iPhone → redirect chain, form fields
            │     (card / password / SSN), brand mentions, screenshot, HTML. Sandbox destroyed after use.
