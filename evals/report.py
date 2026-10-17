@@ -97,6 +97,23 @@ def report(run_dir: Path, destination: Path):
         ("Mean USD / case", "mean_cost_usd", number),
     ]:
         lines.append(f"| {title} | {fmt(metrics['baseline'][key])} | {fmt(metrics['tripwire'][key])} |")
+    for system in sorted(systems):
+        errors = metrics[system]["errors"]
+        if errors:
+            lines += [
+                "",
+                f"{system.capitalize()} failure types: "
+                + ", ".join(f"`{key}` ({count})" for key, count in sorted(errors.items()))
+                + ".",
+            ]
+    runtime_path = run_dir / "runtime_info.json"
+    if runtime_path.exists():
+        runtime = json.loads(runtime_path.read_text())
+        lines += [
+            "",
+            f"Recorded runtime configuration: verdict `{runtime['verdict_model']}`, Droid `{runtime['droid_model']}`. "
+            "Package versions and interpreter are preserved in `runtime_info.json`.",
+        ]
     droid_rows = [r for r in rows if r["system"] == "tripwire"]
     droid_success = sum((r.get("debug", {}).get("droid") or {}).get("success") is True for r in droid_rows)
     script_cases = sum(bool((r.get("debug", {}).get("droid") or {}).get("scripts_written")) for r in droid_rows)
