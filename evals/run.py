@@ -9,6 +9,7 @@ import csv
 import hashlib
 import json
 import multiprocessing
+import os
 import subprocess
 import time
 from dataclasses import asdict
@@ -142,6 +143,21 @@ def read_results(path: Path) -> list[dict]:
     return [json.loads(line) for line in raw.splitlines()]
 
 
+def validate_saved(results: list[dict], rows: list[dict]) -> None:
+    expected = {row["case_id"]: row for row in rows}
+    seen = set()
+    for result in results:
+        key = (result["case_id"], result["system"])
+        source = expected.get(result["case_id"])
+        if key in seen or source is None or result["system"] not in ("baseline", "tripwire"):
+            raise ValueError("Duplicate, unknown case, or unknown system in saved predictions")
+        if any(result.get(field) != source[field] for field in ("label", "source", "category")):
+            raise ValueError("Saved prediction does not match frozen input metadata")
+        if result["prediction"] not in ("safe", "scam", "suspicious"):
+            raise ValueError("Invalid saved prediction")
+        seen.add(key)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("stub", "checks", "full"), default="stub")
@@ -187,8 +203,13 @@ def main():
             ledger.append({**manifest, "output": str(args.out)})
             ledger_path.write_text(json.dumps(ledger, indent=2) + "\n")
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+    inputs_path = args.out / "inputs.json"
+    if inputs_path.exists() and json.loads(inputs_path.read_text()) != rows:
+        parser.error("Saved input rows differ from the pinned dataset")
+    inputs_path.write_text(json.dumps(rows, indent=2, ensure_ascii=False) + "\n")
     output = args.out / "predictions.jsonl"
     results = read_results(output)
+    validate_saved(results, rows)
     done = {(r["case_id"], r["system"]) for r in results}
     if len(done) != len(results):
         parser.error("Duplicate saved predictions")
@@ -200,6 +221,7 @@ def main():
             with output.open("a") as f:
                 f.write(json.dumps(result, ensure_ascii=False) + "\n")
                 f.flush()
+                os.fsync(f.fileno())
             results.append(result)
             print(
                 f"{len(results)}/{2 * len(rows)} {system} {row['case_id']} {result['prediction']} "
@@ -211,4 +233,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import fcntl
+
+    # Serialize eval invocations in this worktree, including the shared run ledger.
+    lock_id = hashlib.sha256(str(ROOT).encode()).hexdigest()[:12]
+    with Path(f"/tmp/tripwire-evals-{lock_id}.lock").open("w") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise SystemExit("Another eval runner holds this worktree's budget lock") from None
+        main()

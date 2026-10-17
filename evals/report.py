@@ -19,6 +19,12 @@ def number(value):
 def report(run_dir: Path, destination: Path):
     manifest = json.loads((run_dir / "manifest.json").read_text())
     rows = [json.loads(line) for line in (run_dir / "predictions.jsonl").read_text().splitlines()]
+    from evals.run import validate_saved
+
+    inputs = json.loads((run_dir / "inputs.json").read_text())
+    validate_saved(rows, inputs)
+    if len(inputs) != manifest["cases"]:
+        raise ValueError("Input count does not match manifest")
     keys = {(r["case_id"], r["system"]) for r in rows}
     if len(keys) != len(rows) or len(rows) != 2 * manifest["cases"]:
         raise ValueError("Report requires complete, unique paired predictions")

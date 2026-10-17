@@ -48,3 +48,33 @@ def test_resume_truncates_only_incomplete_final_line(tmp_path):
     path.write_bytes(b'bad\n{"case_id":"a"}\n')
     with pytest.raises(ValueError):
         read_results(path)
+
+
+def test_saved_predictions_must_match_input_and_be_unique():
+    from evals.run import validate_saved
+
+    source = {"case_id": "a", "label": "safe", "source": "development", "category": "development"}
+    prediction = {**source, "system": "baseline", "prediction": "safe"}
+    validate_saved([prediction], [source])
+    for corrupt in [
+        {**prediction, "label": "scam"},
+        {**prediction, "case_id": "b"},
+        {**prediction, "system": "other"},
+        {**prediction, "prediction": "yes"},
+    ]:
+        with pytest.raises(ValueError):
+            validate_saved([corrupt], [source])
+    with pytest.raises(ValueError):
+        validate_saved([prediction, prediction], [source])
+
+
+def test_stub_and_hard_timeout_do_not_call_services():
+    from evals.run import bounded
+
+    source = {"case_id": "a", "label": "safe", "text": "hi", "source": "development", "category": "development"}
+    result = bounded(source, "tripwire", "stub", "unused", timeout=5)
+    assert result["error"] == "investigator_stub"
+    assert result["prediction"] == "suspicious"
+    timed = bounded(source, "tripwire", "stub", "unused", timeout=0)
+    assert timed["error"] == "case_timeout_or_worker_exit"
+    assert timed["latency_s"] < 3

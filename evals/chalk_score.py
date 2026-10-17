@@ -29,6 +29,7 @@ SCORERS = [
 
 def main():
     import argparse
+    import hashlib
     import json
     from pathlib import Path
 
@@ -39,9 +40,11 @@ def main():
     predictions = [json.loads(line) for line in (args.run_dir / "predictions.jsonl").read_text().splitlines()]
     if len(predictions) != 2 * manifest["cases"]:
         parser.error("Only complete paired runs can be published")
+    inputs = {r["case_id"]: r for r in json.loads((args.run_dir / "inputs.json").read_text())}
     records = [
         {
             "case_id": r["case_id"],
+            "forwarded_text": inputs[r["case_id"]]["text"],
             "system": r["system"],
             "prediction": r["prediction"],
             "expected": r["label"],
@@ -51,24 +54,40 @@ def main():
         }
         for r in predictions
     ]
+    if len({(r["case_id"], r["system"]) for r in records}) != len(records):
+        parser.error("Duplicate predictions")
+    if any(r["expected"] != inputs[r["case_id"]]["label"] for r in records):
+        parser.error("Prediction ground truth disagrees with inputs")
+    fingerprint = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()
     client = chalkcompute.DatasetClient()
-    dataset = client.upload("tripwire-" + args.run_dir.name, records, timeout=120)
-    evaluation = chalkcompute.Evaluation.create(
-        "tripwire-" + args.run_dir.name,
-        dataset=dataset,
-        task=replay,
-        scorers=SCORERS,
-        metadata={"purpose": "saved-prediction replay; no fresh inference", **manifest},
-    )
-    run = evaluation.run(metadata={"git_sha": manifest["git_sha"], "mode": manifest["mode"]})
     receipt_path = args.run_dir / "chalk_receipt.json"
-    receipt = {
-        "evaluation_id": evaluation.id,
-        "run_id": run.id,
-        "status": str(run.status),
-        "environment_id": run.environment_id,
-        "method": "local inference; remote replay task and SQL scorers",
-    }
+    if receipt_path.exists():
+        receipt = json.loads(receipt_path.read_text())
+        if receipt.get("records_sha256") not in (None, fingerprint):
+            parser.error("Saved predictions changed after upload; refusing to reuse receipt")
+        eval_client = chalkcompute.EvaluationClient()
+        if receipt.get("run_id"):
+            run = eval_client.get_run(receipt["run_id"])
+        else:
+            evaluation = eval_client.get(receipt["evaluation_id"])
+            run = evaluation.run(metadata={"git_sha": manifest["git_sha"], "mode": manifest["mode"]})
+    else:
+        dataset = client.upload("tripwire-" + args.run_dir.name, records, timeout=120)
+        evaluation = chalkcompute.Evaluation.create(
+            "tripwire-" + args.run_dir.name,
+            dataset=dataset,
+            task=replay,
+            scorers=SCORERS,
+            metadata={"purpose": "saved-prediction replay; no fresh inference", **manifest},
+        )
+        receipt = {
+            "evaluation_id": evaluation.id,
+            "records_sha256": fingerprint,
+            "method": "local inference; remote replay task and SQL scorers",
+        }
+        receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
+        run = evaluation.run(metadata={"git_sha": manifest["git_sha"], "mode": manifest["mode"]})
+    receipt.update(run_id=run.id, status=str(run.status), environment_id=run.environment_id)
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps(receipt), flush=True)
     run = run.wait(timeout=600, poll_interval=3)
