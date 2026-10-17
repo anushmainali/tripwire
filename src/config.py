@@ -50,6 +50,13 @@ class ChalkConfig:
     api_server: str | None
 
 
+@dataclass(frozen=True)
+class ChalkRouterConfig:
+    api_key: str
+    env_id: str
+    base_url: str = "https://api.chalk.ai/v1/router"
+
+
 def factory() -> FactoryConfig:
     return FactoryConfig(api_key=_get("FACTORY_API_KEY", required=False))
 
@@ -79,10 +86,14 @@ def chalk() -> ChalkConfig:
     )
 
 
+def chalk_router() -> ChalkRouterConfig:
+    return ChalkRouterConfig(api_key=_get("CHALK_ROUTER_API_KEY"), env_id=_get("CHALK_ENV_ID"))
+
+
 def describe() -> dict[str, dict[str, bool] | str]:
     """Which settings are present per service (True/False), never the values."""
     report: dict[str, dict[str, bool] | str] = {}
-    for name, loader in (("factory", factory), ("photon", photon), ("chalk", chalk)):
+    for name, loader in (("factory", factory), ("photon", photon), ("chalk", chalk), ("chalk_router", chalk_router)):
         try:
             cfg = loader()
             report[name] = {f.name: getattr(cfg, f.name) is not None for f in fields(cfg)}

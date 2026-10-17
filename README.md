@@ -50,6 +50,13 @@ cp .env.example .env   # then fill in your keys
 
 Install the Droid CLI ([quickstart](https://docs.factory.com/droid-cli/quickstart)) and sign in by running `droid`, or set `FACTORY_API_KEY` in `.env`.
 
+Install the Chalk CLI and sign in (needed for Chalk evaluations):
+
+```bash
+curl -s -L https://api.chalk.ai/install.sh | sh
+chalk login
+```
+
 Check which settings are present (values are never printed):
 
 ```bash
@@ -61,6 +68,8 @@ Smoke tests, run from the repo root:
 ```bash
 .venv/bin/python -m smoke_tests.test_droid
 .venv/bin/python -m smoke_tests.test_chalk
+.venv/bin/python -m smoke_tests.test_chalk_gateway   # Model Gateway via the OpenAI client
+.venv/bin/python smoke_tests/test_chalk_eval.py    # Chalk evaluation quick start (uses `chalk login`)
 .venv/bin/python -m smoke_tests.test_photon   # then text "ping" to your agent number
 ```
 

@@ -8,7 +8,7 @@ target-version = "py311"
 line-length = 120
 
 [tool.ruff.format]
-exclude = ["smoke_tests/test_photon.py"]
+exclude = ["smoke_tests/test_photon.py", "smoke_tests/test_chalk_eval.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "C4"]
@@ -16,3 +16,5 @@ select = ["E", "F", "W", "I", "B", "UP", "C4"]
 [tool.ruff.lint.per-file-ignores]
 # Kept verbatim from Photon's "Build an iMessage agent" guide; imports follow load_dotenv().
 "smoke_tests/test_photon.py" = ["E402", "I001", "C408", "UP017", "E501"]
+# Kept verbatim from Chalk's evaluation quick start.
+"smoke_tests/test_chalk_eval.py" = ["I001", "E401", "E501"]
