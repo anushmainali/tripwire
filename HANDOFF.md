@@ -21,6 +21,9 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
   status/body (no secrets), re-check Photon beta docs for how to reference an uploaded attachment in sendMessage; if
   truly unsupported on shared lines, keep the hosted link as the primary path and say so in README.
 - After fixing, add a new NEEDS HUMAN item asking for one more phone test.
+- **Recommended:** create Chalk service credentials (Dashboard → Settings → Access tokens) and put CHALK_CLIENT_ID /
+  CHALK_CLIENT_SECRET in .env. Today sandboxes, feature queries and evals ride on the `chalk login` session; if it
+  expires before the demo, run `chalk login` again (detonation fails soft → text verdict still works).
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
@@ -43,8 +46,12 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
   payment-ask fix (no FP on "paid you"), Hi-Mum pattern, context note. A later run would measure the current system.
 - **Evals lane status (seen by Lead 14:27):** Codex hit its usage limit until ~18:52; full-v1 paused at 10 rows (not
   running). If still stalled by ~21:00, Lead runs the documented resume command in ../hh-evals (evals/README.md).
+- **Done (Chalk feature engine):** `chalk_features/` deployed via `chalk apply` (first deployment in env "production",
+  project "Default"): `Domain` expression features + `@online` RDAP resolver. Domain-age check queries
+  `domain.registered_days_ago` online (~150 ms), RDAP fallback. Redeploy: `cd chalk_features && chalk apply --force`
+  (needs `.venv/bin` on PATH). No online store in env → no max_staleness/caching.
 - **Next 3 steps:**
-  1. Optional: Chalk feature-engine mirror of intel (no feature deployment exists in env yet — risky).
+  1. Wait for evals full-v1 (Codex resumes ~18:52); then merge, fill SUBMISSION.md/README numbers.
   2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
   3. Polish (warm sandbox?), then moonshot only if all green.
 - **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on
