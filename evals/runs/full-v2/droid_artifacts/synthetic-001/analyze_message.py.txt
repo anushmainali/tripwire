@@ -1,0 +1,29 @@
+import json, re, unicodedata
+from urllib.parse import urlparse
+
+text = open("message.txt", encoding="utf-8").read()
+ents = json.load(open("entities.json"))
+
+# 1. Hidden / non-ASCII characters
+odd = [(i, hex(ord(c)), unicodedata.name(c, "?")) for i, c in enumerate(text) if ord(c) > 127 or (unicodedata.category(c) == "Cf")]
+print("non_ascii_or_format_chars:", odd)
+
+# 2. Encoded content (percent-encoding, base64-like runs, punycode)
+print("percent_encoded:", re.findall(r"%[0-9A-Fa-f]{2}", text))
+print("base64_like_runs:", re.findall(r"[A-Za-z0-9+/]{24,}={0,2}", text))
+print("punycode_labels:", re.findall(r"xn--\S+", text))
+
+# 3. URL structure
+for u in ents["urls"]:
+    p = urlparse(u)
+    print("url:", u, "| scheme:", p.scheme, "| host:", p.hostname, "| path:", p.path, "| has_userinfo:", bool(p.username))
+    labels = p.hostname.split(".")
+    print("host_labels:", labels, "| tld:", labels[-1])
+    print("host_contains_brand_word:", "usps" in p.hostname.lower(), "| is_usps_official_domain:", p.hostname.lower() == "usps.com" or p.hostname.lower().endswith(".usps.com"))
+
+# 4. Urgency / payment-pressure language
+pressure = [w for w in ["now", "destroyed", "fee", "pay", "immediately", "urgent", "final", "suspend", "expire"] if re.search(r"\b" + w + r"\b", text, re.I)]
+print("pressure_terms:", pressure)
+
+# 5. Amount vs. claimed brand (fee-based pretext)
+print("payment_requested:", bool(re.search(r"\bpay\b|\bfee\b", text, re.I)), "| amounts:", ents["amounts"])

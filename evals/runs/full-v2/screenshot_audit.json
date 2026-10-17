@@ -28,5 +28,20 @@
     "uniform_image": false,
     "file": "sandbox_screenshots/url-69188.jpg",
     "sha256": "828a6b3e1fef064c5daad4dec1d1ee1d7b539f4200ad00001c43f79833343548"
+  },
+  {
+    "case_id": "synthetic-039",
+    "capture_ok": true,
+    "status": 200,
+    "width": 1170,
+    "height": 1991,
+    "channel_stddev": [
+      24.134533921355192,
+      31.09031279123045,
+      22.87105107052525
+    ],
+    "uniform_image": false,
+    "file": "sandbox_screenshots/synthetic-039.jpg",
+    "sha256": "96cb5f4abe00755843dfdfb48f096aac938c1f39fe3d8afe368dc2dbd6aa07cc"
   }
 ]

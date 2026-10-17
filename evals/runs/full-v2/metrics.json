@@ -1,77 +1,77 @@
 {
   "baseline": {
-    "n": 40,
+    "n": 48,
     "labels": {
-      "safe": 19,
-      "scam": 17,
-      "suspicious": 4
+      "safe": 22,
+      "scam": 21,
+      "suspicious": 5
     },
-    "accuracy": 0.55,
-    "successful_call_accuracy": 0.6470588235294118,
-    "scam_precision": 0.7333333333333333,
-    "scam_recall": 0.6470588235294118,
+    "accuracy": 0.5416666666666666,
+    "successful_call_accuracy": 0.6842105263157895,
+    "scam_precision": 0.75,
+    "scam_recall": 0.5714285714285714,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.42105263157894735,
-    "error_count": 6,
+    "warning_false_positive_rate": 0.36363636363636365,
+    "error_count": 10,
     "errors": {
-      "gateway_incomplete_response": 6
+      "gateway_incomplete_response": 10
     },
-    "median_latency_s": 1.31755,
+    "median_latency_s": 1.3409499999999999,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 0,
     "confusion_matrix": {
       "safe": {
-        "safe": 11,
+        "safe": 14,
         "suspicious": 8,
         "scam": 0
       },
       "suspicious": {
         "safe": 0,
-        "suspicious": 0,
+        "suspicious": 1,
         "scam": 4
       },
       "scam": {
         "safe": 0,
-        "suspicious": 6,
-        "scam": 11
+        "suspicious": 9,
+        "scam": 12
       }
     }
   },
   "tripwire": {
-    "n": 38,
+    "n": 46,
     "labels": {
-      "safe": 18,
-      "scam": 16,
-      "suspicious": 4
+      "safe": 22,
+      "scam": 19,
+      "suspicious": 5
     },
-    "accuracy": 0.6578947368421053,
-    "successful_call_accuracy": 0.6578947368421053,
-    "scam_precision": 0.8181818181818182,
-    "scam_recall": 0.5625,
+    "accuracy": 0.717391304347826,
+    "successful_call_accuracy": 0.717391304347826,
+    "scam_precision": 0.8571428571428571,
+    "scam_recall": 0.631578947368421,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.2222222222222222,
+    "warning_false_positive_rate": 0.18181818181818182,
     "error_count": 0,
     "errors": {},
-    "median_latency_s": 22.3645,
+    "median_latency_s": 22.34845,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 1,
     "confusion_matrix": {
       "safe": {
-        "safe": 14,
+        "safe": 18,
         "suspicious": 4,
         "scam": 0
       },
       "suspicious": {
         "safe": 0,
-        "suspicious": 2,
+        "suspicious": 3,
         "scam": 2
       },
       "scam": {
         "safe": 0,
         "suspicious": 7,
-        "scam": 9
+        "scam": 12
       }
     }
   }

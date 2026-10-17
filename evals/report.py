@@ -132,6 +132,9 @@ def report(run_dir: Path, destination: Path):
             f"among {len(images)} sandbox requests. Saved images and dimensions are in `screenshot_audit.json`. "
             "This audit does not establish successful iMessage attachment delivery.",
         ]
+    screenshot_review = run_dir / "screenshot_review.json"
+    if screenshot_review.exists():
+        lines += [json.loads(screenshot_review.read_text())["summary"]]
     lines += [
         "",
         "Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall "
