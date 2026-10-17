@@ -185,7 +185,7 @@ droid                  # sign in to the Droid CLI, or set FACTORY_API_KEY
 
 ```bash
 .venv/bin/python -m src.main --cli        # local REPL: type messages as if texting Tripwire
-.venv/bin/python -m src.main              # live iMessage agent (run exactly ONE poller)
+scripts/run_tripwire.sh                   # live iMessage agent with auto-restart (exactly ONE poller)
 .venv/bin/python -m src.detonation.sandbox https://example.com   # detonate one URL in a Chalk sandbox
 .venv/bin/python -m demo_site.deploy      # (re)deploy the demo site to a Chalk ScalingGroup
 .venv/bin/python -m pytest -q             # offline tests

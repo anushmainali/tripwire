@@ -1,7 +1,7 @@
 # Tripwire — 2-minute demo script
 
 ## Before you start (5 min)
-1. Laptop: `cd HackHarvard && .venv/bin/python -m src.main`. Leave it running; it's the ONLY poller.
+1. Laptop: `cd HackHarvard && scripts/run_tripwire.sh` (auto-restarts on crash). Leave it running; it is the ONLY poller.
    Check the log shows `Tripwire live on +1…`.
 2. Phone: the iMessage account set as `PHOTON_TEST_SENDER` (Photon's shared line only accepts that sender).
    Open a conversation with the Tripwire number (`PHOTON_AGENT_HANDLE`).
