@@ -18,6 +18,7 @@ class IncomingMessage:
     text: str
     space_id: str | None = None
     received_at: str | None = None
+    attachments: list[str] = field(default_factory=list)  # Photon attachment ids (e.g. a forwarded screenshot)
 
 
 @dataclass

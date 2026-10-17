@@ -15,6 +15,7 @@ from pathlib import Path
 
 from photon_api import ApiError, Photon
 from photon_api.generated.models import (
+    AttachmentContent,
     RootModel,
     SendAttachmentContent,
     SendMessageRequest,
@@ -23,6 +24,8 @@ from photon_api.generated.models import (
     UserSnapshot,
 )
 from photon_api.rpc_generated import (
+    DownloadAttachmentInput,
+    GetAttachmentInput,
     ListMessagesInput,
     SendMessageHeader,
     SendMessageInput,
@@ -44,6 +47,14 @@ class ReplyTarget:
     space_id: str
     agent_id: str
     message_id: str
+
+
+def _content_parts(content) -> tuple[str, list[str]]:
+    """Text and attachment ids from a received message (plain text, a lone attachment, or a group of parts)."""
+    parts = [p.root if hasattr(p, "root") else p for p in getattr(content, "parts", None) or [content]]
+    texts = [p.text for p in parts if isinstance(p, TextContent)]
+    attachments = [p.attachmentId for p in parts if isinstance(p, AttachmentContent)]
+    return "\n".join(texts), attachments
 
 
 def multipart_related(data: bytes, content_type: str, filename: str) -> tuple[bytes, str]:
@@ -97,13 +108,14 @@ class PhotonChannel:
                 m = item.root.root
                 if not self._accept(m):
                     continue
-                text = m.content.text if isinstance(m.content, TextContent) else ""
+                text, attachments = _content_parts(m.content)
                 msg = IncomingMessage(
                     message_id=m.id,
                     sender=m.sentBy.root.handle,
                     text=text,
                     space_id=m.space.root.id,
                     received_at=m.createdAt,
+                    attachments=attachments,
                 )
                 out.append((msg, ReplyTarget(m.space.root.id, m.receivedBy.root.id, m.id)))
             token = page.nextPageToken
@@ -137,6 +149,15 @@ class PhotonChannel:
 
     def send_text(self, target: ReplyTarget, text: str) -> None:
         self._send(target, SendTextContent(type="text", format="plain", text=text[:MAX_TEXT]), "text")
+
+    def fetch_attachment(self, attachment_id: str, max_bytes: int = 8_000_000) -> tuple[bytes, str] | None:
+        """Download an incoming attachment. Returns (bytes, content type), or None if not an image / too big."""
+        ids = {"id": self.cfg.project_id, "attachmentId": attachment_id}
+        meta = self.client.projects.get_attachment(GetAttachmentInput.model_validate({"path": ids}))
+        if not meta.contentType.startswith("image/") or meta.sizeBytes > max_bytes:
+            return None
+        data = self.client.projects.download_attachment(DownloadAttachmentInput.model_validate({"path": ids}))
+        return data, meta.contentType
 
     def upload(self, path: str, key: str):
         """Upload a file. The API wants multipart/related: a JSON metadata part, then the file bytes."""

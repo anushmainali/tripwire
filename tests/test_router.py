@@ -86,3 +86,17 @@ def test_why_shows_droid_work():
     state.save_case("+1", "text", v)
     out = router.format_why(state.last_case("+1")[2])
     assert "parsed page.html" in out and "analyze_page.py" in out
+
+
+def test_screenshot_is_transcribed_and_investigated():
+    calls, sent = [], []
+    m = IncomingMessage("s1", "+1", "", attachments=["att1"])
+    router.handle(m, State(":memory:"), sent.append, fake_investigate(calls), read_images=lambda ids: "USPS fee text")
+    assert calls[0][0] == "USPS fee text"
+
+
+def test_unreadable_screenshot():
+    sent = []
+    m = IncomingMessage("s2", "+1", "", attachments=["att1"])
+    router.handle(m, State(":memory:"), sent.append, fake_investigate([]), read_images=lambda ids: None)
+    assert "couldn't read" in sent[0]

@@ -18,7 +18,8 @@ or that a wallet received its first transaction this morning. Tripwire checks th
 
 ## What it does
 
-1. You forward a message to Tripwire's iMessage number. Optionally add context, like "about to pay this".
+1. You forward a message to Tripwire's iMessage number, or send a **screenshot** of it (Tripwire reads the text with
+   a vision model). Optionally add context, like "about to pay this".
 2. Tripwire replies `Investigating… 🔍` right away.
 3. Within about a minute you get:
 
@@ -50,6 +51,7 @@ official channel."
 ```
 iMessage ─► Photon (shared line; poll listMessages → sendMessage w/ idempotency keys)
               │   src/channels/photon.py · router.py (help / why / context / new case) · state.py (SQLite)
+              │   screenshots → download attachment → vision transcription via Chalk Gateway (Messages API)
               ▼
      src/investigator/orchestrator.py            (85 s hard budget; every step has a timeout + fallback)
        1. extract.py      URLs (incl. defanged), domains, phones, emails, Zelle/Venmo/CashApp handles,

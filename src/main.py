@@ -53,6 +53,18 @@ def run_live() -> None:
             return True
         return False
 
+    def read_images(ids: list[str]) -> str | None:
+        from src.investigator.gateway import transcribe_image
+
+        texts = []
+        for attachment_id in ids[:2]:
+            got = channel.fetch_attachment(attachment_id)
+            if got:
+                text = transcribe_image(*got)
+                if text:
+                    texts.append(text)
+        return "\n\n".join(texts) or None
+
     def work(msg: IncomingMessage, target) -> None:
         try:
             router.handle(
@@ -61,6 +73,7 @@ def run_live() -> None:
                 send=lambda text: channel.send_text(target, text),
                 investigate=lambda m, ctx: investigate(m, context=ctx),
                 send_image=lambda path: send_image(target, path),
+                read_images=read_images,
             )
         except Exception:
             log.exception("failed handling %s", msg.message_id)

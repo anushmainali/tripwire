@@ -76,8 +76,20 @@ def handle(
     send: Send,
     investigate: Callable[[IncomingMessage, str | None], Verdict],
     send_image: Callable[[str], bool] | None = None,
+    read_images: Callable[[list[str]], str | None] | None = None,
 ) -> Verdict | None:
     text = (msg.text or "").strip()
+    if msg.attachments and read_images is not None:
+        try:
+            transcript = read_images(msg.attachments)
+        except Exception as error:  # noqa: BLE001
+            log.warning("screenshot read failed: %s", type(error).__name__)
+            transcript = None
+        if transcript:
+            text = f"{text}\n\n{transcript}".strip() if text else transcript
+        elif not text:
+            send("I couldn't read text in that image. Paste the message text (or forward it) and I'll check it.")
+            return None
     norm = text.lower().strip(" .!")
     if not text:
         send("Forward me the suspicious message as text (copy & paste works best) and I'll check it.")
