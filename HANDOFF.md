@@ -20,10 +20,13 @@ _(Things only the human can do: logins, keys, phone tests. Agents: add items her
   (~3 s); `steps=("detonation",)` adds the sandbox only. Suggest: full pipeline on ≤ 40 cases, checks+LLM on all.
 - **Done (docs):** README (sponsor sections), DEMO.md (script + exact messages), SUBMISSION.md (results TBD from evals).
   85 s budget enforced; Droid skipped for chit-chat; Photon attachment upload verified live (multipart/related).
+- **Done (hardening):** most-suspicious URL detonated; "still checking" msg after 35 s; per-sender rate limit (12/10 min);
+  `why` lists Droid analyses + scripts; screenshot forwarding (Photon attachment → vision via gateway `/v1/messages`);
+  live prompt-injection red team 8/8 (`python -m scripts.redteam` → docs/REDTEAM.md); wrapper-escape neutralized.
 - **Next 3 steps:**
-  1. Hardening: most-suspicious URL first, "still checking" progress msg, per-sender rate limit, why shows Droid work.
-  2. Image/screenshot forwarding: download Photon attachment → vision transcription via gateway → investigate.
-  3. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
+  1. Live test context follow-up flow; fake-channel e2e test of `run_live`.
+  2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
+  3. Polish (warm sandbox?), then moonshot only if all green.
 - **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on
   shared line: upload verified, send untested until a phone test (falls back to hosted link).
 
