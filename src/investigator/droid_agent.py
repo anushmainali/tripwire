@@ -27,7 +27,7 @@ from droid_sdk.mcp import create_sdk_mcp_server, tool
 from pydantic import BaseModel, Field
 
 from src import config
-from src.contracts import Entities, Evidence, IncomingMessage
+from src.contracts import Entities, Evidence, IncomingMessage, clip
 from src.investigator.checks import payment, rdap
 from src.investigator.extract import registrable_domain
 
@@ -166,5 +166,5 @@ def droid_investigate(
     debug.update(analyses_run=report.analyses_run, summary=report.summary)
     scripts = sorted(p.name for p in case_dir.glob("*.py"))
     debug["scripts_written"] = scripts
-    out = [Evidence(f"droid:{f.check}"[:60], f.finding[:220], f.severity) for f in report.findings[:5]]
+    out = [Evidence(f"droid:{f.check}"[:60], clip(f.finding, 240), f.severity) for f in report.findings[:5]]
     return out, {"debug": debug, "scam_type": report.scam_type}

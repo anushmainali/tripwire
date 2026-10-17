@@ -17,8 +17,9 @@ def registration_date(domain: str, client: httpx.Client | None = None) -> dateti
     client = client or httpx.Client(timeout=TIMEOUT_S, follow_redirects=True)
     try:
         resp = client.get(RDAP_URL.format(domain=domain), headers={"Accept": "application/rdap+json"})
-        if resp.status_code != 200:
-            return None
+        if resp.status_code == 404:
+            return None  # registry has no record (unregistered or unsupported TLD)
+        resp.raise_for_status()  # other HTTP errors mean the check failed, not "no record"
         for event in resp.json().get("events", []):
             if event.get("eventAction") == "registration" and event.get("eventDate"):
                 return datetime.fromisoformat(event["eventDate"].replace("Z", "+00:00"))

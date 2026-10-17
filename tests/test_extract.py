@@ -48,3 +48,11 @@ def test_brand_ignores_freemail_and_prefers_earliest():
     e = extract("I'm Jessica, recruiter at Coinbase. Contact jess.hiring@gmail.com")
     assert e.claimed_brand == "coinbase"
     assert extract("Join our groups today").claimed_brand is None
+
+
+def test_clip_never_cuts_mid_word():
+    from src.contracts import clip
+
+    out = clip("which is itself a manipulation attempt by the sender", 40)
+    assert out == "which is itself a manipulation attempt…"
+    assert clip("short", 40) == "short"
