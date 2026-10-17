@@ -4,7 +4,7 @@
 
 ## NEEDS HUMAN
 _(Things only the human can do: logins, keys, phone tests. Agents: add items here and keep working around them.)_
-_(Human phone test done 2:15 PM Sat — no action needed from the human right now.)_
+- **Phone re-test requested (screenshot fix, 5 PM Sat):** text the PostalPlus demo message again; the screenshot link/attachment should now show the card form (not blank). Check `tmux`/log for `attachment send failed (... status= body=)` and tell Lead.
 
 ## HUMAN TEST RESULTS — Lead: fix these next (priority over other polish)
 Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TEST_SENDER:
@@ -27,6 +27,7 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
+- **17:05 Sat:** merged origin/evals (88 tests pass). Evals full-v2 run is in progress (pid running, 2 of 3 full slots used). When `evals/runs/full-v2/metrics.json` + RESULTS.md are final, fill SUBMISSION.md/README numbers.
 - **Done:** contracts; investigator (extract → link/RDAP/script/payment checks → **Droid** step → **Chalk sandbox
   detonation** → evidence-only verdict via Chalk Model Gateway `anthropic/claude-sonnet-5-5`, deterministic
   floor/fallback); Photon poller + SQLite state + router (help / why / context / new case); screenshot as iMessage
@@ -53,8 +54,10 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - **Done:** Droid OS sandbox per case (deny-all network except localhost MCP; verified live); Droid model
   claude-haiku-5-5 (~32 s); `scripts/run_tripwire.sh` supervisor; SUBMISSION.md refreshed.
 - **Next 3 steps:**
-  1. Wait for evals full-v1 (Codex resumes ~18:52); then merge, fill SUBMISSION.md/README numbers.
-  2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
+  1. **DONE 5 PM (awaiting phone re-test): blank-screenshot fix (PNG/JPEG validity check + one retry + no blank link; ApiError body now logged)**; orig note: fix the blank-screenshot bug in "HUMAN TEST RESULTS" at the top of this file**
+     (SandboxFileSystemError, validate PNG before sending, hosted link must render on a phone, no blank links).
+     The screenshot is the demo's "wow" moment. Then add a NEEDS HUMAN item asking for one phone re-test.
+  2. When evals full-v1 lands (Codex resumes ~18:52): merge, fill SUBMISSION.md Results + README numbers.
   3. Polish (warm sandbox?), then moonshot only if all green.
 - **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on
   shared line: upload verified, send untested until a phone test (falls back to hosted link).
