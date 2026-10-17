@@ -1,0 +1,2 @@
+# Additional plotting dependency; runtime dependencies are pinned at repo root.
+matplotlib==3.10.8
