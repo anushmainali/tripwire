@@ -21,7 +21,7 @@ If it's down: `.venv/bin/python -m demo_site.deploy`.
 ```
 PostalPlus: Your parcel PP-4471-2209-US is on hold due to an unpaid $1.99 redelivery fee. Pay within 12 hours or it will be returned: https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/track?id=PP4471
 ```
-Expected (~50 s): `🚨 Likely scam (High confidence)`, bullets about the page asking for a card number and the
+Expected (~40 s): `🚨 Likely scam (High confidence)`, bullets about the page asking for a card number and the
 brand/domain mismatch, a safe-check step, then the **screenshot of the fake payment page**.
 
 **2. Legit (real USPS notice on usps.com)**

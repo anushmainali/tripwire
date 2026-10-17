@@ -55,7 +55,7 @@ re-checks the message with it, without just caving to what you say. It never say
 _(Filled from `evals/RESULTS.md` after the final benchmark run.)_
 - Accuracy: baseline **TBD** vs Tripwire **TBD**
 - False-positive rate on legit messages: baseline **TBD** vs Tripwire **TBD**
-- Median time to verdict: ~50 s with full investigation (sandbox + Droid); a few seconds for messages with nothing to
+- Median time to verdict: ~40 s with full investigation (sandbox + Droid); a few seconds for messages with nothing to
   investigate.
 
 ## Challenges we ran into
