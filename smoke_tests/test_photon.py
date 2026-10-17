@@ -2,7 +2,11 @@
 
 Taken from Photon's "Build an iMessage agent" guide (Python tab):
 https://photon.codes/docs/beta/get-started/imessage
-The only change: keys load from .env (python-dotenv) instead of shell exports.
+Changes from the guide:
+- Keys load from .env (python-dotenv) instead of shell exports.
+- No parentMessageId on the reply. On the shared iMessage line Photon rejects threaded
+  replies with 409 SPACE_NOT_SENDABLE ("Replies are not supported for this Space"),
+  so we send a normal message into the same Space instead.
 
 Run: .venv/bin/python -m smoke_tests.test_photon
 Then, within 2 minutes, text exactly `ping` to PHOTON_AGENT_HANDLE from PHOTON_TEST_SENDER.
@@ -88,7 +92,6 @@ def run(c, window_s=120.0, poll_s=2.0):
                             body=SendMessageRequest(
                                 spaceId=m.space.root.id,
                                 senderId=m.receivedBy.root.id,
-                                parentMessageId=m.id,
                                 content=SendTextContent(type="text", format="plain", text="Hello from your Photon agent!"),
                             ),
                         )
