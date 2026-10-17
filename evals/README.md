@@ -45,9 +45,13 @@ slot; resume them instead of starting another full run. Do not delete or reset
 the ledger to bypass the budget.
 
 ```bash
-../HackHarvard/.venv/bin/python -m evals.run --mode full --full-run --workers 2 --out evals/runs/full-v1 \
+../HackHarvard/.venv/bin/python -m evals.run --mode full --full-run --workers 2 --out evals/runs/full-v2 \
   --detonate-case url-69188 --detonate-case url-154131 --detonate-case synthetic-039
 ```
+
+Full-v1 was interrupted after 10 predictions; its results are retained, and its slot
+remains consumed. Full-v2 measures the newer production code at `f754dc8` and uses
+slot 2 of 3. Do not resume v1 with newer inference code.
 
 Each case runs in a child process with a 90-second limit. Default concurrency is one; `--workers` allows 1–5 (use two for the benchmark).
 Worker process groups are terminated on timeout, including local Droid descendants.
@@ -57,11 +61,24 @@ unknown IDs and changed labels. A crash-truncated final JSONL line is removed
 before resuming; complete prior records are retained. Do not edit inference code
 or merge while a run is active. Timeouts and failures remain visible in metrics.
 
+## Offline artifact review
+
+```bash
+../HackHarvard/.venv/bin/python -m evals.audit_artifacts evals/runs/full-v2
+../HackHarvard/.venv/bin/python -m evals.audit_screenshots evals/runs/full-v2
+```
+
+The script audit copies source as inert `.txt` and never executes it. The screenshot
+audit copies existing local sandbox images, records dimensions and uniformity, and
+never opens their URLs. A screenshot file can exist even when navigation failed.
+The full-v2 evidence review samples the first case in each source/label stratum;
+all claims in those seven cases are reviewed under the saved strict-grounding rubric.
+
 ## Chalk scoring and report artifacts
 
 ```bash
-../HackHarvard/.venv/bin/python evals/chalk_score.py evals/runs/full-v1
-MPLCONFIGDIR=/tmp/tripwire-matplotlib ../HackHarvard/.venv/bin/python -m evals.report evals/runs/full-v1
+../HackHarvard/.venv/bin/python evals/chalk_score.py evals/runs/full-v2
+MPLCONFIGDIR=/tmp/tripwire-matplotlib ../HackHarvard/.venv/bin/python -m evals.report evals/runs/full-v2
 ```
 
 The Chalk command uploads inputs, labels and saved predictions, deploys a replay

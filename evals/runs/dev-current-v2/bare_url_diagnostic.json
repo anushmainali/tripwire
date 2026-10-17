@@ -1,0 +1,20 @@
+{
+  "input": "https://example.com (reserved development domain; no URL fetched)",
+  "model": "claude-haiku-5-5",
+  "finish_reason": "stop",
+  "content": "suspicious",
+  "usage": {
+    "completion_tokens": 6,
+    "prompt_tokens": 226,
+    "total_tokens": 232,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "image_tokens": null,
+      "text_tokens": null
+    }
+  },
+  "note": "Separate development diagnostic during frozen full-v2; no benchmark prediction is changed."
+}

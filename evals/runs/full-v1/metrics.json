@@ -1,0 +1,75 @@
+{
+  "baseline": {
+    "n": 6,
+    "labels": {
+      "safe": 4,
+      "scam": 2
+    },
+    "accuracy": 0.6666666666666666,
+    "successful_call_accuracy": 1.0,
+    "scam_precision": 1.0,
+    "scam_recall": 0.5,
+    "false_positive_rate": 0.0,
+    "warning_false_positive_rate": 0.25,
+    "error_count": 2,
+    "errors": {
+      "gateway_incomplete_response": 2
+    },
+    "median_latency_s": 1.2420499999999999,
+    "mean_cost_usd": null,
+    "cost_known_cases": 0,
+    "failed_check_count": 0,
+    "confusion_matrix": {
+      "safe": {
+        "safe": 3,
+        "suspicious": 1,
+        "scam": 0
+      },
+      "suspicious": {
+        "safe": 0,
+        "suspicious": 0,
+        "scam": 0
+      },
+      "scam": {
+        "safe": 0,
+        "suspicious": 1,
+        "scam": 1
+      }
+    }
+  },
+  "tripwire": {
+    "n": 4,
+    "labels": {
+      "safe": 4
+    },
+    "accuracy": 0.75,
+    "successful_call_accuracy": 0.75,
+    "scam_precision": null,
+    "scam_recall": null,
+    "false_positive_rate": 0.0,
+    "warning_false_positive_rate": 0.25,
+    "error_count": 0,
+    "errors": {},
+    "median_latency_s": 24.05395,
+    "mean_cost_usd": null,
+    "cost_known_cases": 0,
+    "failed_check_count": 1,
+    "confusion_matrix": {
+      "safe": {
+        "safe": 3,
+        "suspicious": 1,
+        "scam": 0
+      },
+      "suspicious": {
+        "safe": 0,
+        "suspicious": 0,
+        "scam": 0
+      },
+      "scam": {
+        "safe": 0,
+        "suspicious": 0,
+        "scam": 0
+      }
+    }
+  }
+}

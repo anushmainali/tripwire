@@ -1,0 +1,12 @@
+import re, unicodedata, base64
+data = open("message.txt", "rb").read()
+text = data.decode("utf-8", errors="replace")
+print("bytes:", len(data), "chars:", len(text))
+odd = [(i, hex(ord(c)), unicodedata.name(c, "?")) for i, c in enumerate(text) if ord(c) > 127 or (ord(c) < 32 and c not in "\n\r\t")]
+print("non-ascii/control chars:", odd)
+print("urls/domains:", re.findall(r"(?:https?://|www\.)\S+|\b[\w-]+\.[a-z]{2,}\b", text, re.I))
+print("phones:", re.findall(r"\+?\d[\d\s().-]{7,}\d", text))
+print("base64-like runs:", re.findall(r"[A-Za-z0-9+/]{16,}={0,2}", text))
+print("hex-like runs:", re.findall(r"\b(?:0x)?[0-9a-fA-F]{32,}\b", text))
+print("money mentions:", re.findall(r"[$€£]\s?\d[\d,.]*|\b\d[\d,.]*\s?(?:USD|EUR|GBP|dollars|euros)\b", text, re.I))
+print("urgency/secrecy terms:", [w for w in ["urgent", "immediately", "do not", "don't", "risk", "entire", "wire", "safe account", "fraud team", "phone"] if w in text.lower()])

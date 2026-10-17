@@ -5,6 +5,7 @@ import csv
 import json
 from pathlib import Path
 
+from evals.comparison import paired_outcomes, wilson
 from evals.metrics import LABELS, grouped, summarize
 
 
@@ -85,6 +86,7 @@ def report(run_dir: Path, destination: Path):
     for title, key, fmt in [
         ("Cases", "n", str),
         ("Exact accuracy (failures incorrect)", "accuracy", pct),
+        ("Accuracy among successful calls", "successful_call_accuracy", pct),
         ("Scam precision", "scam_precision", pct),
         ("Scam recall", "scam_recall", pct),
         ("Strict false-positive rate", "false_positive_rate", pct),
@@ -95,6 +97,23 @@ def report(run_dir: Path, destination: Path):
         ("Mean USD / case", "mean_cost_usd", number),
     ]:
         lines.append(f"| {title} | {fmt(metrics['baseline'][key])} | {fmt(metrics['tripwire'][key])} |")
+    for system in sorted(systems):
+        errors = metrics[system]["errors"]
+        if errors:
+            lines += [
+                "",
+                f"{system.capitalize()} failure types: "
+                + ", ".join(f"`{key}` ({count})" for key, count in sorted(errors.items()))
+                + ".",
+            ]
+    runtime_path = run_dir / "runtime_info.json"
+    if runtime_path.exists():
+        runtime = json.loads(runtime_path.read_text())
+        lines += [
+            "",
+            f"Recorded runtime configuration: verdict `{runtime['verdict_model']}`, Droid `{runtime['droid_model']}`. "
+            "Package versions and interpreter are preserved in `runtime_info.json`.",
+        ]
     droid_rows = [r for r in rows if r["system"] == "tripwire"]
     droid_success = sum((r.get("debug", {}).get("droid") or {}).get("success") is True for r in droid_rows)
     script_cases = sum(bool((r.get("debug", {}).get("droid") or {}).get("scripts_written")) for r in droid_rows)
@@ -105,6 +124,34 @@ def report(run_dir: Path, destination: Path):
             f"{script_cases} cases report written analysis scripts. Failed or timed-out sessions are not "
             "counted as successful tool use, even when a fallback verdict is correct.",
         ]
+    if final:
+        selected = manifest.get("detonation_cases", [])
+        det_rows = [r for r in droid_rows if r.get("detonation_requested")]
+        screenshots = sum(bool(r.get("screenshot_path")) for r in det_rows)
+        navigated = sum((r.get("debug", {}).get("detonation") or {}).get("ok") is True for r in det_rows)
+        lines += [
+            "",
+            f"Sandbox coverage: **{len(det_rows)}/{len(droid_rows)} cases requested detonation**; "
+            f"{screenshots} returned screenshot paths; {navigated} reported successful page capture. Selected IDs: "
+            + (", ".join(f"`{case}`" for case in selected) or "none")
+            + ".",
+            "All other cases use the investigation path with sandbox detonation disabled. "
+            "Droid may be skipped by the production fast path when no analyzable artifacts or warning signs exist. "
+            "A returned screenshot path does not by itself establish image quality or successful phone delivery.",
+        ]
+    screenshot_audit = run_dir / "screenshot_audit.json"
+    if screenshot_audit.exists():
+        images = json.loads(screenshot_audit.read_text())
+        blank = sum(record.get("uniform_image", False) for record in images)
+        missing = sum(bool(record.get("image_error")) for record in images)
+        lines += [
+            f"Offline screenshot audit: {blank} near-uniform images and {missing} missing/undecodable images "
+            f"among {len(images)} sandbox requests. Saved images and dimensions are in `screenshot_audit.json`. "
+            "This audit does not establish successful iMessage attachment delivery.",
+        ]
+    screenshot_review = run_dir / "screenshot_review.json"
+    if screenshot_review.exists():
+        lines += [json.loads(screenshot_review.read_text())["summary"]]
     lines += [
         "",
         "Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall "
@@ -112,6 +159,31 @@ def report(run_dir: Path, destination: Path):
         "suspicious predictions. Missing denominators are N/A. Latency includes process startup and failures.",
         "Cost is **unknown**: the investigator does not expose complete billed token, Droid, and sandbox usage. "
         "Baseline token counts, when available, are retained in raw results; no price assumptions are substituted.",
+        "",
+    ]
+    pairs = paired_outcomes(rows)
+    lines += [
+        "## Paired outcomes and uncertainty",
+        "",
+        f"Both systems correct: {pairs['both_correct']}; baseline alone correct: {pairs['baseline_only']}; "
+        f"Tripwire alone correct: {pairs['tripwire_only']}; neither correct: {pairs['neither_correct']}.",
+        "",
+        "| System | Accuracy: 95% Wilson interval | Strict FPR: 95% Wilson interval |",
+        "|---|---:|---:|",
+    ]
+    for system in sorted(systems):
+        system_rows = [r for r in rows if r["system"] == system]
+        correct = sum(r["prediction"] == r["label"] and not r.get("error") for r in system_rows)
+        safe = [r for r in system_rows if r["label"] == "safe"]
+        fp = sum(r["prediction"] == "scam" for r in safe)
+        intervals = [wilson(correct, len(system_rows)), wilson(fp, len(safe))]
+        formatted = ["N/A" if interval is None else f"{pct(interval[0])}–{pct(interval[1])}" for interval in intervals]
+        lines.append(f"| {system} | " + " | ".join(formatted) + " |")
+    lines += [
+        "",
+        "Intervals describe binomial sampling uncertainty only. This selected convenience set is not a random "
+        "sample of incoming messages; the intervals do not account for selection bias, label uncertainty, "
+        "shared templates, or temporal drift. Zero observed false positives does not imply zero risk.",
         "",
     ]
     for system in sorted(systems):

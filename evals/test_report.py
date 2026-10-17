@@ -37,3 +37,23 @@ def test_report_rejects_changed_labels_even_if_pair_counts_match(tmp_path):
     path.write_text("".join(json.dumps(r) + "\n" for r in rows))
     with pytest.raises(ValueError, match="metadata"):
         report(run, tmp_path / "report")
+
+
+def test_full_report_discloses_limited_sandbox_coverage(tmp_path):
+    run = fixture(tmp_path)
+    manifest_path = run / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(full_run=True, mode="full", detonation_cases=["dev-1"])
+    manifest_path.write_text(json.dumps(manifest))
+    predictions = run / "predictions.jsonl"
+    rows = [json.loads(line) for line in predictions.read_text().splitlines()]
+    for row in rows:
+        if row["case_id"] == "dev-1" and row["system"] == "tripwire":
+            row.update(detonation_requested=True, screenshot_path="/tmp/tripwire-test.png")
+    predictions.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with patch("evals.report.chart"):
+        report(run, tmp_path / "report")
+    text = (tmp_path / "report" / "RESULTS.md").read_text()
+    assert "1/8 cases requested detonation" in text
+    assert "1 returned screenshot paths" in text
+    assert "Droid may be skipped" in text

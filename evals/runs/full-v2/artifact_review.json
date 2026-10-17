@@ -1,0 +1,11 @@
+{
+  "reviewer": "Codex static source review; scripts never executed by audit",
+  "reviewed_flags": [
+    {
+      "case_id": "synthetic-001",
+      "file": "droid_artifacts/synthetic-001/analyze_message.py.txt",
+      "flag": "review_import:urllib.parse",
+      "assessment": "Offline URL parsing only; no network functions or dynamic execution. Reads only message.txt and entities.json."
+    }
+  ]
+}

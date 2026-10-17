@@ -1,0 +1,14 @@
+{
+  "selection": "First case in frozen input order for each source/label stratum, independent of predictions; review every returned evidence item.",
+  "case_ids": [
+    "synthetic-030",
+    "url-154131",
+    "sms-2236",
+    "url-69188",
+    "synthetic-007",
+    "sms-4002",
+    "sms-3434"
+  ],
+  "rubric": "supported = grounded in message or saved check/tool output; partial = grounded core plus unverified claim; unsupported = contradicted or no supporting observation. Source checks are assessed for consistency, not independently re-fetched.",
+  "reviewer": "Codex author review, unblinded and not independent expert validation."
+}

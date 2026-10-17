@@ -1,0 +1,27 @@
+{
+  "method": "inert source capture and AST review hints; scripts are never executed by this audit",
+  "scripts": [
+    {
+      "case_id": "url-69188",
+      "file": "droid_artifacts/url-69188/analyze_page.py.txt",
+      "sha256": "64e5845fb334b603862fb188fbfbc3cab8e6c077bb1c6d60591e9df39ec79370",
+      "review_flags": []
+    },
+    {
+      "case_id": "synthetic-012",
+      "file": "droid_artifacts/synthetic-012/scan_message.py.txt",
+      "sha256": "661cdb36c602d2c4db01abdbeb82284e9d26add2a62db5248097d89db0262025",
+      "review_flags": []
+    },
+    {
+      "case_id": "synthetic-001",
+      "file": "droid_artifacts/synthetic-001/analyze_message.py.txt",
+      "sha256": "0c51c68711ad388bc1a381b16d85749ef1c86b2b90128a34c806873ef48bf1c9",
+      "review_flags": [
+        "review_import:urllib.parse"
+      ]
+    }
+  ],
+  "script_cases": 3,
+  "flagged_scripts": 1
+}

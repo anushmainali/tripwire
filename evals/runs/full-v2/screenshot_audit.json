@@ -1,0 +1,47 @@
+[
+  {
+    "case_id": "url-154131",
+    "capture_ok": false,
+    "status": null,
+    "width": 1170,
+    "height": 1991,
+    "channel_stddev": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "uniform_image": true,
+    "file": "sandbox_screenshots/url-154131.jpg",
+    "sha256": "961f8527934de926b0507e7b15b07fb5e981599c76efc7d2e660821a9a345053"
+  },
+  {
+    "case_id": "url-69188",
+    "capture_ok": true,
+    "status": 404,
+    "width": 1170,
+    "height": 1992,
+    "channel_stddev": [
+      51.76291011396591,
+      45.82646040073518,
+      37.01328246578311
+    ],
+    "uniform_image": false,
+    "file": "sandbox_screenshots/url-69188.jpg",
+    "sha256": "828a6b3e1fef064c5daad4dec1d1ee1d7b539f4200ad00001c43f79833343548"
+  },
+  {
+    "case_id": "synthetic-039",
+    "capture_ok": true,
+    "status": 200,
+    "width": 1170,
+    "height": 1991,
+    "channel_stddev": [
+      24.134533921355192,
+      31.09031279123045,
+      22.87105107052525
+    ],
+    "uniform_image": false,
+    "file": "sandbox_screenshots/synthetic-039.jpg",
+    "sha256": "96cb5f4abe00755843dfdfb48f096aac938c1f39fe3d8afe368dc2dbd6aa07cc"
+  }
+]
