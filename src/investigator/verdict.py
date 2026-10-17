@@ -53,7 +53,9 @@ def _top(evidence: list[Evidence], n: int = 3) -> list[Evidence]:
     return [e for e in ranked if e.severity != "info"][:n] or ranked[:n]
 
 
-def format_reply(label: Label, confidence: Confidence, bullets: list[str], safe_verify: str, note: str = "") -> str:
+def format_reply(
+    label: Label, confidence: Confidence, bullets: list[str], safe_verify: str, note: str = "", has_links: bool = True
+) -> str:
     lines = [f"{HEADLINE[label]} ({confidence.capitalize()} confidence)", ""]
     lines += [f"• {b}" for b in bullets]
     if bullets:
@@ -62,7 +64,8 @@ def format_reply(label: Label, confidence: Confidence, bullets: list[str], safe_
         lines.append(f"✅ Still verify: {safe_verify}")
     else:
         lines.append(
-            f"✅ Safe check: {safe_verify} Don't tap the link or reply."
+            f"✅ Safe check: {safe_verify} "
+            + ("Don't tap the link or reply." if has_links else "Don't reply or send anything.")
             if label == "scam"
             else f"✅ Safe check: {safe_verify}"
         )
@@ -80,6 +83,7 @@ def build_verdict(
     context: str | None = None,
     use_llm: bool = True,
     note: str = "",
+    has_links: bool = True,
 ) -> Verdict:
     det_label, det_conf = score(evidence)
     debug: dict = {"deterministic": [det_label, det_conf]}
@@ -94,7 +98,7 @@ def build_verdict(
             label, confidence = det_label, det_conf
     if label == "safe":
         bullets = [b for b in bullets if b] or ["Ran link, payment and scam-pattern checks — nothing alarming found"]
-    reply = format_reply(label, confidence, bullets, safe_verify, note)
+    reply = format_reply(label, confidence, bullets, safe_verify, note, has_links)
     return Verdict(label, confidence, scam_type, evidence, safe_verify, reply, debug=debug)
 
 
