@@ -62,6 +62,12 @@ def run_live(channel=None, state: State | None = None, max_polls: int | None = N
         signal.signal(signal.SIGTERM, stop)
     log.info("Tripwire live on %s (%s). Polling every %.1fs.", channel.cfg.agent_handle, channel.cfg.platform, POLL_S)
 
+    last_verdict: dict[str, object] = {}
+
+    def remember(target, verdict):
+        last_verdict[str(target)] = verdict
+        return verdict
+
     def send_image(target, path: str) -> bool:
         """Screenshot as an iMessage attachment; if Photon rejects it, send a hosted link instead."""
         try:
@@ -74,9 +80,10 @@ def run_live(channel=None, state: State | None = None, max_polls: int | None = N
                 getattr(error, "status", None),
                 str(getattr(error, "body", ""))[:200],
             )
-        from src.channels.shots import upload_screenshot
+        from src.channels.shots import report_meta, upload_screenshot
 
-        url = upload_screenshot(path)
+        v = last_verdict.get(str(target))
+        url = upload_screenshot(path, report_meta(v) if v else None)
         if url:
             channel.send_text(target, f"📸 Where the link really leads (opened safely in our sandbox): {url}")
             return True
@@ -100,7 +107,7 @@ def run_live(channel=None, state: State | None = None, max_polls: int | None = N
                 msg,
                 state,
                 send=lambda text: channel.send_text(target, text),
-                investigate=lambda m, ctx: investigate(m, context=ctx),
+                investigate=lambda m, ctx: remember(target, investigate(m, context=ctx)),
                 send_image=lambda path: send_image(target, path),
                 read_images=read_images,
             )

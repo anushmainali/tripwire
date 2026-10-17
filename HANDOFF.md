@@ -26,7 +26,26 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
   expires before the demo, run `chalk login` again (detonation fails soft → text verdict still works).
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
+## WORK QUEUE FROM HUMAN (added 6:25 PM Sat) — Lead: work through these in order; do NOT idle
+The project is NOT finished. Waiting on the phone re-test is not a reason to stop — keep building these.
+Rules: don't change verdict/label logic or the frozen benchmark; everything else is fair game. Don't commit
+status-only HANDOFF updates when nothing changed.
+1. **Demo reliability script** `scripts/demo_check.py`: runs the exact DEMO.md scam message through the full live pipeline
+   (no Photon send), asserts screenshot is valid, hosted link returns 200 with an image content-type, prints timings.
+   Also a `--warm` mode that wakes the Chalk demo site + a sandbox right before judging. Document in DEMO.md.
+2. **Screenshot page for phones:** the hosted link should open a branded mobile HTML page ("Tripwire opened this link
+   so you didn't have to") with the screenshot, the final URL/redirect chain, and the red flags found — not a bare image.
+3. **Evidence quality (from Codex's review in evals/):** no findings truncated mid-word; every evidence bullet must map to a
+   check that actually ran (drop unsupported external claims); correct scam-type advice. Formatting/grounding only.
+4. **README polish:** architecture diagram (Mermaid), "How we use Factory Droid / Chalk / Photon" each with file paths,
+   honest results table + caveats, safety section (sandbox isolation, prompt-injection red team), setup steps.
+5. **Demo assets:** DEMO.md shot list for a 2-minute video + 3 backup demo messages (scam, suspicious, legit) that are
+   known to produce the right verdict; a fallback plan if Photon/Chalk is down during judging (pre-recorded run log).
+6. **Moonshot (only after 1–5 are done and green):** live call co-pilot (SPEC.md §2), behind a feature flag, OFF by
+   default, must not touch the text pipeline. Mark experimental.
+
 ## Status: Lead (Claude Code, `main`)
+- **18:50 Sat:** WORK QUEUE 1+2 DONE: `scripts/demo_check.py` (+`--warm`, in DEMO.md) passes live (37 s); hosted link is now a branded mobile report page (`/s/<id>`: screenshot, final URL/chain, red flags; image at `/s/<id>.jpg`); demo site redeployed. Next: queue 3 (evidence quality), 4 README, 5 demo assets.
 - **18:20 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Waiting only on phone re-test.
 - **18:10 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Still only waiting on phone re-test.
 - **18:00 Sat:** resumed; no new evals commits, 90 tests pass, ruff clean. Still only waiting on phone re-test.

@@ -15,6 +15,11 @@ The demo trap page is our own harmless page for a **fictional** brand, "PostalPl
 ScalingGroup. Its card form submits nowhere. Check it's up: open `<demo-url>/health` (`cat data/demo_site_url.txt`).
 If it's down: `.venv/bin/python -m demo_site.deploy`.
 
+## Reliability check (run before judging)
+- `.venv/bin/python -m scripts.demo_check --warm` wakes the demo site and a sandbox (~20 s).
+- `.venv/bin/python -m scripts.demo_check` runs demo message 1 through the live pipeline (no Photon send) and asserts:
+  scam verdict, < 85 s, valid screenshot, hosted mobile report page 200, image 200. Exit code 0 = good.
+
 ## Demo messages (copy exactly)
 
 **1. Scam (PostalPlus delivery fee)**

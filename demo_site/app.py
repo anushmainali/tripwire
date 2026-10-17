@@ -8,7 +8,10 @@
 Standard library only. Binds 0.0.0.0:8080.
 """
 
+import base64
 import hmac
+import html
+import json
 import os
 import secrets
 from collections import OrderedDict
@@ -19,6 +22,7 @@ TOKEN = os.environ.get("TRIPWIRE_SHOT_TOKEN", "")
 MAX_SHOTS = 300
 MAX_BYTES = 3_000_000
 SHOTS: OrderedDict[str, bytes] = OrderedDict()
+METAS: dict[str, dict] = {}
 
 STYLE = """<style>
 body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;background:#f4f4f6;color:#1d1d1f}
@@ -50,6 +54,46 @@ Pay within <b>12 hours</b> or it will be returned to sender.</div>
 </form></div>
 <footer>Fictional brand · Tripwire HackHarvard demo page · form submits nowhere</footer>
 </body></html>"""
+
+REPORT_STYLE = """<style>
+body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;background:#0f1115;color:#eee}
+header{padding:16px 18px;font-weight:800;font-size:20px;border-bottom:1px solid #2a2d35}
+header span{color:#ff4d4f}
+.tag{padding:14px 18px;font-size:15px;color:#bbb}
+.card{background:#181b21;margin:12px;padding:14px 16px;border-radius:12px}
+h3{margin:0 0 8px;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:#8b93a1}
+img{width:100%;border-radius:8px;border:1px solid #333;display:block}
+code{word-break:break-all;font-size:13px;color:#9cdcfe}
+li{margin:6px 0;font-size:15px;line-height:1.35}
+.red{color:#ff6b6b}.yellow{color:#ffcc00}.green{color:#52c41a}
+footer{font-size:11px;color:#666;text-align:center;padding:16px}
+</style>"""
+
+
+def render_report(shot_id: str, meta: dict) -> str:
+    esc = lambda v: html.escape(str(v)[:300])  # noqa: E731
+    chain = meta.get("chain") or []
+    flags = meta.get("flags") or []
+    parts = [
+        '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">',
+        f"<title>Tripwire opened this link</title>{REPORT_STYLE}</head><body>",
+        "<header>Trip<span>wire</span> 🪤</header>",
+        '<div class="tag">Tripwire opened this link in a sealed sandbox so you didn\'t have to.</div>',
+        f'<div class="card"><h3>What the page looks like</h3><img src="/s/{shot_id}.jpg" alt="Screenshot"></div>',
+    ]
+    if meta.get("final_url"):
+        hops = "".join(f"<li><code>{esc(u)}</code></li>" for u in chain[:8])
+        parts.append(
+            f'<div class="card"><h3>Where it really goes</h3><code>{esc(meta["final_url"])}</code>'
+            + (f"<ul>{hops}</ul>" if hops else "")
+            + "</div>"
+        )
+    if flags:
+        items = "".join(f'<li class="{esc(f.get("s", "yellow"))}">{esc(f.get("t", ""))}</li>' for f in flags[:8])
+        parts.append(f'<div class="card"><h3>Red flags found</h3><ul>{items}</ul></div>')
+    parts.append("<footer>Nothing was typed or submitted. Screenshot kept temporarily.</footer></body></html>")
+    return "".join(parts)
+
 
 HOME = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tripwire demo</title></head><body style="font-family:sans-serif;padding:24px">
@@ -83,6 +127,8 @@ class Handler(BaseHTTPRequestHandler):
         elif path.startswith("/s/") and path.endswith(".jpg"):
             data = SHOTS.get(path[3:-4])
             self._send(200, data, "image/jpeg") if data else self._send(404, b"not found", "text/plain")
+        elif path.startswith("/s/") and SHOTS.get(path[3:]):
+            self._send(200, render_report(path[3:], METAS.get(path[3:], {})).encode())
         elif path in ("/", "/health"):
             self._send(200, HOME.encode())
         else:
@@ -102,9 +148,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(415, b"jpeg only", "text/plain")
         shot_id = secrets.token_urlsafe(12)
         SHOTS[shot_id] = data
+        try:
+            meta = json.loads(base64.b64decode(self.headers.get("X-Tripwire-Meta", "")) or b"{}")
+            METAS[shot_id] = meta if isinstance(meta, dict) else {}
+        except Exception:  # noqa: BLE001
+            METAS[shot_id] = {}
         while len(SHOTS) > MAX_SHOTS:
-            SHOTS.popitem(last=False)
-        self._send(200, f"/s/{shot_id}.jpg".encode(), "text/plain")
+            METAS.pop(SHOTS.popitem(last=False)[0], None)
+        self._send(200, f"/s/{shot_id}".encode(), "text/plain")
 
     def log_message(self, fmt, *args):
         pass
