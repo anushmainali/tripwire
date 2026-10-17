@@ -14,7 +14,14 @@ from concurrent.futures import ThreadPoolExecutor
 
 from src.channels import router
 from src.channels.state import State
-from src.contracts import IncomingMessage, investigate
+from src.contracts import IncomingMessage
+from src.investigator.orchestrator import investigate as _investigate
+
+
+def investigate(msg: IncomingMessage, context: str | None = None):
+    """Live investigations also use and feed the community intel memory."""
+    return _investigate(msg, context=context, intel=True)
+
 
 POLL_S = 2.5
 log = logging.getLogger("tripwire")

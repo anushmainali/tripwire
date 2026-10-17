@@ -5,6 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, wait
 
 from src.contracts import Entities, Evidence, IncomingMessage, Verdict
+from src.investigator import intel as intel_mod
 from src.investigator import verdict as verdict_mod
 from src.investigator.checks.link import check_links, is_official, lookalike_brand
 from src.investigator.checks.payment import check_payment
@@ -72,6 +73,7 @@ def investigate(
     context: str | None = None,
     use_llm: bool = True,
     steps: tuple[str, ...] | list[str] | None = None,
+    intel: bool = False,
 ) -> Verdict:
     """Full investigation. `steps` selects the heavy steps ("detonation", "droid"); [] = checks + verdict only."""
     from src.detonation.report import detonation_evidence
@@ -84,6 +86,8 @@ def investigate(
     url = _detonation_target(entities)
     det_future = pool.submit(detonate, url, DETONATION_TIMEOUT_S) if url and "detonation" in steps else None
     evidence, scam_type = run_checks(msg.text, entities)
+    if intel:
+        evidence += _safe_run("tripwire_history", intel_mod.history, entities, msg.sender)
     debug: dict = {"entities": entities.__dict__}
     note = ""
 
@@ -129,6 +133,8 @@ def investigate(
         has_links=bool(entities.urls),
         llm_timeout=max(8.0, left(reserve=0)),
     )
+    if intel:
+        _safe_run("intel_record", intel_mod.record, entities, msg.sender, result.label)
     result.screenshot_path = screenshot
     result.debug.update(debug)
     result.debug["latency_s"] = round(time.monotonic() - started, 2)
