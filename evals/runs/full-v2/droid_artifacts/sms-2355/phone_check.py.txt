@@ -1,0 +1,13 @@
+import re
+text = open("message.txt", encoding="utf-8").read()
+urls = re.findall(r"https?://\S+|www\.\S+", text, re.I)
+domains = re.findall(r"\b[a-z0-9-]+\.(?:com|net|org|co|uk|io|xyz|info|top|me)\b", text, re.I)
+phones = re.findall(r"(?:\+44|0)\s?\d[\d\s-]{8,13}\d", text)
+wallets = re.findall(r"\b(?:0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{25,60})\b", text)
+print("urls:", urls)
+print("domains:", domains)
+print("wallets:", wallets)
+for p in phones:
+    digits = re.sub(r"\D", "", p)
+    print("phone:", p.strip(), "| digits:", digits, "| length:", len(digits),
+          "| prefix:", digits[:4], "| uk_national_format:", digits.startswith("0") and len(digits) == 11)

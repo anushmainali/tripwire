@@ -1,0 +1,44 @@
+import json
+import re
+from urllib.parse import urlparse
+
+HERE = "/private/tmp/tripwire-cases/eval-url-221384-1792270728"
+
+with open(f"{HERE}/message.txt", encoding="utf-8") as f:
+    message = f.read()
+
+urls = re.findall(r"https?://[^\s<>\"']+", message)
+print("urls_found:", urls)
+
+for url in urls:
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    labels = host.split(".")
+    print("scheme:", parsed.scheme)
+    print("host:", host)
+    print("labels:", labels)
+    print("path:", parsed.path or "/")
+    print("has_port:", parsed.port is not None)
+    print("has_userinfo:", "@" in parsed.netloc)
+    print("is_ip_host:", bool(re.fullmatch(r"[\d.]+", host)))
+    print("registrable_guess:", ".".join(labels[-2:]))
+    print("subdomain_depth:", max(len(labels) - 2, 0))
+    print("hyphens_in_host:", host.count("-"))
+    print("host_length:", len(host))
+
+    # Lexical hints: common scam words embedded in the subdomain label.
+    lure_words = [
+        "support", "info", "web", "secure", "login", "verify", "account",
+        "help", "bank", "pay", "wallet", "update", "official", "service",
+        "difficult",
+    ]
+    subdomain = ".".join(labels[:-2])
+    found = [w for w in lure_words if w in subdomain.lower()]
+    print("lure_words_in_subdomain:", found)
+
+    # Character-level signal: long consonant runs are typical of generated names.
+    consonant_runs = re.findall(r"[bcdfghjklmnpqrstvwxz]{5,}", subdomain.lower())
+    print("long_consonant_runs:", consonant_runs)
+
+    # Hosting platform check (no network access).
+    print("hosted_on_repl_co:", host.endswith(".repl.co"))

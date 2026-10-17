@@ -1,0 +1,53 @@
+import json
+import re
+import unicodedata
+
+HERE = "/private/tmp/tripwire-cases/eval-synthetic-029-1792270669"
+
+with open(f"{HERE}/message.txt", encoding="utf-8") as f:
+    text = f.read()
+
+entities = json.load(open(f"{HERE}/entities.json", encoding="utf-8"))
+
+report = {}
+report["length_chars"] = len(text)
+report["non_ascii_chars"] = sorted({c for c in text if ord(c) > 127})
+report["invisible_chars"] = sorted(
+    {hex(ord(c)) for c in text if unicodedata.category(c) == "Cf"}
+)
+
+# Obfuscated link or domain patterns the extractor might miss
+patterns = {
+    "url_scheme": r"https?://",
+    "defanged_url": r"hxxps?|\[\.\]|\(\.\)|\[dot\]",
+    "bare_domain": r"\b[a-z0-9-]+\.(com|net|org|gov|us|info|xyz|top|co|io|me|site|online|click)\b",
+    "www_prefix": r"\bwww\.",
+    "email": r"[\w.+-]+@[\w-]+\.[\w.]+",
+    "phone": r"\+?\d[\d\s().-]{7,}\d",
+    "crypto_btc": r"\b(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}\b",
+    "crypto_eth": r"\b0x[a-fA-F0-9]{40}\b",
+    "gift_card_code": r"\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b",
+    "amount": r"\$\s?\d[\d,]*(\.\d{2})?",
+    "base64_like": r"\b[A-Za-z0-9+/]{24,}={0,2}\b",
+    "hex_escape": r"(\\x[0-9a-fA-F]{2}|%[0-9a-fA-F]{2}){3,}",
+}
+
+hits = {}
+for name, pat in patterns.items():
+    found = re.findall(pat, text, flags=re.IGNORECASE)
+    if found:
+        hits[name] = found if isinstance(found[0], str) else [m[0] for m in found]
+report["pattern_hits"] = hits
+
+# Compare with what the extractor reported
+report["extractor_reported"] = {
+    k: v for k, v in entities.items() if k != "claimed_brand" and v
+}
+report["claimed_brand"] = entities.get("claimed_brand")
+
+# Brand and urgency keywords
+keywords = ["irs", "tax", "gift card", "arrest", "warrant", "hang up", "agency",
+            "urgent", "immediately", "code", "lawsuit", "police"]
+report["keyword_hits"] = [k for k in keywords if k in text.lower()]
+
+print(json.dumps(report, indent=2, ensure_ascii=False))

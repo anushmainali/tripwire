@@ -1,0 +1,33 @@
+import json
+import re
+import unicodedata
+
+with open("message.txt", "rb") as f:
+    raw = f.read()
+text = raw.decode("utf-8", errors="replace")
+
+print("bytes:", len(raw))
+print("non-ascii chars:", [c for c in text if ord(c) > 127])
+print("control chars:", [hex(ord(c)) for c in text if unicodedata.category(c).startswith("C") and c not in "\n\r\t"])
+print("urls/domains:", re.findall(r"(?:https?://|www\.)\S+|\b[a-z0-9-]+\.[a-z]{2,}\b", text, re.I))
+print("emails:", re.findall(r"\S+@\S+", text))
+print("amounts:", re.findall(r"[£$€]\s?[\d,.]+", text))
+print("crypto-like strings:", re.findall(r"\b(?:0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{20,})\b", text))
+
+phones = re.findall(r"\b\d{10,13}\b", text)
+for p in phones:
+    if p.startswith("44"):
+        national = "0" + p[2:]
+        fmt = "international form of a UK number"
+    elif p.startswith("0"):
+        national = p
+        fmt = "UK national form"
+    else:
+        national = p
+        fmt = "unknown"
+    prefix = national[:3]
+    print(f"phone {p}: normalized={national} format={fmt} prefix={prefix}")
+    print("  UK 090 premium-rate prefix:", prefix == "090")
+
+print("same number in both forms:", "449050000301" in text and "09050000301" in text
+      and "0" + "449050000301"[2:] == "09050000301")

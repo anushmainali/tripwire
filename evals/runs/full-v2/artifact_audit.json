@@ -48,8 +48,42 @@
       "file": "droid_artifacts/sms-2730/analyze_message.py.txt",
       "sha256": "8dd6df7b90e055dc0805035a3dbd1eb2d3e7f1600d47534ef30ad3d2ee5b6f07",
       "review_flags": []
+    },
+    {
+      "case_id": "synthetic-029",
+      "file": "droid_artifacts/synthetic-029/scan_message.py.txt",
+      "sha256": "119b69dee85be3a3e8d00d9b9981be853ee132f1452690152fc2cd142d11feaa",
+      "review_flags": []
+    },
+    {
+      "case_id": "url-221384",
+      "file": "droid_artifacts/url-221384/analyze_host.py.txt",
+      "sha256": "22bcf03b3116c3477f8f710983be4414362905a546d185703aafd6304e8deef3",
+      "review_flags": [
+        "review_import:urllib.parse"
+      ]
+    },
+    {
+      "case_id": "sms-1119",
+      "file": "droid_artifacts/sms-1119/analyze_message.py.txt",
+      "sha256": "9e4bdf05d38780d80b1cae9b1c044d46da7a2a598a8087768b322986e6afc180",
+      "review_flags": []
+    },
+    {
+      "case_id": "url-121590",
+      "file": "droid_artifacts/url-121590/domain_check.py.txt",
+      "sha256": "10645778177edabf9a588a7c259368876891b8c94411b425eee93d55ae79fad7",
+      "review_flags": [
+        "review_import:urllib.parse"
+      ]
+    },
+    {
+      "case_id": "sms-2355",
+      "file": "droid_artifacts/sms-2355/phone_check.py.txt",
+      "sha256": "a6b9b0b89ed68042765a5458f4d99ed994da6baf25e0cfe2e941bdf5b2de16e0",
+      "review_flags": []
     }
   ],
-  "script_cases": 7,
-  "flagged_scripts": 3
+  "script_cases": 12,
+  "flagged_scripts": 5
 }

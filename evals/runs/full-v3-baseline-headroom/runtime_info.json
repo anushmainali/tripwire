@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-10-17T20:49:52.965469+00:00",
+  "python": "3.12.14",
+  "baseline_model": "anthropic/claude-haiku-5-5",
+  "verdict_model": "anthropic/claude-sonnet-5-5",
+  "droid_model": "claude-haiku-5-5",
+  "packages": {
+    "openai": "3.33.0",
+    "droid-sdk": "0.5.0",
+    "chalkpy": "2.163.1",
+    "chalkcompute": "2.13.7",
+    "matplotlib": "3.10.8"
+  },
+  "note": "Investigator runtime metadata from reused full-v2; only baseline max_tokens changed to 1024. No new investigator calls.",
+  "baseline_max_tokens": 1024
+}

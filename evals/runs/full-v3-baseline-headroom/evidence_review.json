@@ -1,0 +1,233 @@
+{
+  "reviewer": "Codex author review, unblinded and not independent expert validation.",
+  "scope": "First case in frozen input order for each source/label stratum, independent of predictions; review every returned evidence item.",
+  "rubric": "supported = grounded in message or saved check/tool output; partial = grounded core plus unverified claim; unsupported = contradicted or no supporting observation. Source checks are assessed for consistency, not independently re-fetched.",
+  "summary": "Reviewed all 32 evidence items from seven selected cases: 21 supported, 10 partial, 1 unsupported. Main issues: unsupported .ru pricing/prevalence claim; assumed lack of prize entry; external/general claims presented as observed facts; static HTML checks overstated. Historical benign URL no longer resolves and historical phishing shortener returns 404. Failed-check statements can be supported statements of failure, not successful investigation. Registry claims were checked for consistency with saved results only; no site was fetched locally.",
+  "claims": [
+    {
+      "case_id": "synthetic-030",
+      "evidence_index": 0,
+      "finding": "The message says an order shipped, tells the user to open the Amazon app directly for tracking, and contains no links, payment requests, or credential requests. No urgency or pressure.",
+      "assessment": "supported",
+      "rationale": "Directly matches the message; no linked site or credential request is present."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 0,
+      "finding": ".ru domains are cheap and common in scam texts",
+      "assessment": "unsupported",
+      "rationale": "The .ru suffix is observable, but no pricing or scam-prevalence data supports the cheap/common claim."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 1,
+      "finding": "No registration record found for refleksiya-absurda.ru",
+      "assessment": "supported",
+      "rationale": "Matches the saved automated RDAP no-record result. This is consistency with a check, not independent registry validation."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 2,
+      "finding": "The link's domain does not resolve, so the page could not be opened and no content, forms, or brand could be checked.",
+      "assessment": "supported",
+      "rationale": "Saved sandbox result has ERR_NAME_NOT_RESOLVED, ok=false and no page HTML."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 3,
+      "finding": "The domain has no registration record in the registry, so its owner and creation date are unknown.",
+      "assessment": "partial",
+      "rationale": "No-record result is saved, but saying the domain has no registry record overstates a lookup that can lack coverage; ownership was not checked."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 4,
+      "finding": "The message is only a bare web link, with no brand name, payment request, or urgency language to judge.",
+      "assessment": "supported",
+      "rationale": "Input is a bare URL without payment, brand or urgency wording."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 5,
+      "finding": "Couldn't open the link safely (Error: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://www.refleksiya-absurda.ru/\nCall log:\n  - navigating to \"https://www.refleksiya-absurda.ru/\", waiting until \"domcontentloaded\"\n)",
+      "assessment": "supported",
+      "rationale": "Failure statement matches saved sandbox DNS error and is correctly marked ok=false."
+    },
+    {
+      "case_id": "url-154131",
+      "evidence_index": 6,
+      "finding": "The message is only a bare link with no explanation, brand, payment request or urgency, so its purpose is unclear.",
+      "assessment": "supported",
+      "rationale": "Bare URL and lack of explanatory context match input."
+    },
+    {
+      "case_id": "sms-2236",
+      "evidence_index": 0,
+      "finding": "The message just asks for a room number so the sender can knock on the right door. It has no links, payment requests, or urgency.",
+      "assessment": "supported",
+      "rationale": "Room-number request and absence of links, payments and urgency match the text."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 0,
+      "finding": "cutt.ly is a link shortener that hides the real destination",
+      "assessment": "supported",
+      "rationale": "Matches the shortener check and bare cutt.ly URL. It describes indirection, not proof of fraud."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 1,
+      "finding": "cutt.ly was registered 8 years ago",
+      "assessment": "supported",
+      "rationale": "Matches saved RDAP check; exact registry response is not independently re-fetched."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 2,
+      "finding": "Opening the link in a sandbox returned a cutt.ly '404 Page Not Found' error, so the real destination stayed hidden.",
+      "assessment": "supported",
+      "rationale": "Saved sandbox status 404 and title explicitly identify a Cuttly page-not-found error."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 3,
+      "finding": "The returned page has no login, card, or ID forms, and no hidden redirects.",
+      "assessment": "partial",
+      "rationale": "Saved HTML has no form/input/meta-refresh tags; static parsing cannot exclude every hidden or script-driven redirect."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 4,
+      "finding": "No brand names appear in the page text; the word 'apple' appears only in an icon link tag.",
+      "assessment": "partial",
+      "rationale": "Apple occurs in apple-touch-icon as claimed, but only a finite brand list was searched; the page itself carries Cuttly branding."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 5,
+      "finding": "cutt.ly is an established link shortener, registered in January 2018.",
+      "assessment": "partial",
+      "rationale": "Eight-year age is in checks; January 2018 appears only in Droid self-report, without the raw tool return preserved."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 6,
+      "finding": "The message is only a bare short link, with no context, amounts, or payment details.",
+      "assessment": "supported",
+      "rationale": "The entire input is the shortened URL with no amounts or payment context."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 7,
+      "finding": "Opened in a sandbox: lands on cutt.ly ('404 Error - Page Not Found | Cuttly')",
+      "assessment": "supported",
+      "rationale": "Final URL and title match saved sandbox capture."
+    },
+    {
+      "case_id": "url-69188",
+      "evidence_index": 8,
+      "finding": "The message is only a bare shortened link with no explanation, sender context or stated purpose, leaving the recipient to click blind.",
+      "assessment": "supported",
+      "rationale": "Input is a bare shortened link without explanatory text."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 0,
+      "finding": "Matches a known 'investment romance' scam pattern",
+      "assessment": "supported",
+      "rationale": "Text explicitly promises returns and demands an upfront withdrawal fee, supporting the investment pattern (romance is the combined category name)."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 1,
+      "finding": "Asks for payment via usdt \u2014 hard or impossible to reverse",
+      "assessment": "partial",
+      "rationale": "USDT request is explicit; reversibility claim is general payment knowledge, not a case-specific explorer or transaction check."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 2,
+      "finding": "The message promises guaranteed 20% daily returns with zero risk, which no real investment can offer.",
+      "assessment": "partial",
+      "rationale": "20% daily, guaranteed, zero-risk claims are quoted correctly; universal investment claim was not externally checked."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 3,
+      "finding": "The message asks you to send USDT now, a crypto payment that is very hard or impossible to reverse.",
+      "assessment": "partial",
+      "rationale": "USDT urgency is explicit; reversal mechanics are not established by a supplied tool observation."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 4,
+      "finding": "The message says you must pay a separate 'unlocking tax' before you can withdraw profits, a classic advance-fee trick.",
+      "assessment": "supported",
+      "rationale": "A separate tax before withdrawal is explicit; advance-fee characterization follows that structure."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 5,
+      "finding": "The message contains no links, domains, phone numbers, or crypto wallet addresses, so there was nothing to open or look up.",
+      "assessment": "supported",
+      "rationale": "No actual URL, phone, domain or wallet address appears in the message; the word wallet is not an address."
+    },
+    {
+      "case_id": "synthetic-007",
+      "evidence_index": 6,
+      "finding": "The message pushes urgency with 'Send USDT now', promises 'guaranteed 20% daily returns, zero risk', and says you must pay a separate 'unlocking tax' to the sender's wallet before withdrawing profits.",
+      "assessment": "supported",
+      "rationale": "Accurately quotes the urgency, promised returns and withdrawal condition."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 0,
+      "finding": "Matches a known 'prize lottery' scam pattern",
+      "assessment": "supported",
+      "rationale": "Prize and paid claim-call wording support the prize-lottery pattern."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 1,
+      "finding": "The message claims a \u00a3400 prize and tells you to call a number at 10p per minute, a common premium-rate phone scam.",
+      "assessment": "supported",
+      "rationale": "Prize amount and 10p/minute charge are explicit; the finding characterizes that paid-claim pattern rather than a verified phone owner."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 2,
+      "finding": "The phone number 087104711148 has 12 digits, but UK numbers starting with 0 normally have 11, so the number may be invalid or fake.",
+      "assessment": "partial",
+      "rationale": "12 digits is verifiable from text, but UK numbering rule was not looked up. Droid summary explicitly admits reliance on general knowledge."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 3,
+      "finding": "The message has no links, domains, email addresses, or crypto wallets, so there is no web page to open or check.",
+      "assessment": "supported",
+      "rationale": "No URL, email, domain or crypto address appears in input."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 4,
+      "finding": "The message uses pressure tactics such as 'NOW', 'easy', and 'this is the 2nd time we have tried to contact you'.",
+      "assessment": "supported",
+      "rationale": "Quoted urgency phrases appear in input."
+    },
+    {
+      "case_id": "sms-4002",
+      "evidence_index": 5,
+      "finding": "Claims you won \u00a3400 without any entry, says this is the '2nd time' they've tried to reach you, and demands you call a number 'NOW'.",
+      "assessment": "partial",
+      "rationale": "Prize and NOW are explicit; without any entry is invented context not established by the message."
+    },
+    {
+      "case_id": "sms-3434",
+      "evidence_index": 0,
+      "finding": "Message claims you were 'awarded' a camera you never entered for, and tells you to call a phone number from a landline to claim it, with a delivery timeframe.",
+      "assessment": "partial",
+      "rationale": "Camera award and call instruction are explicit; you never entered is unsupported personal context."
+    }
+  ],
+  "source_run": "full-v2 (unchanged investigator predictions)"
+}

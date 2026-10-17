@@ -1,0 +1,24 @@
+import json, re, difflib
+from urllib.parse import urlparse
+
+urls = json.load(open("entities.json"))["urls"]
+brand_domain = "metamask.io"  # official MetaMask domain
+brand_label = "metamask"
+
+for u in urls:
+    p = urlparse(u)
+    host = (p.hostname or "").lower()
+    labels = host.split(".")
+    registrable = ".".join(labels[-2:]) if len(labels) >= 2 else host
+    label = labels[-2] if len(labels) >= 2 else host
+    print("url:", u)
+    print("  scheme:", p.scheme, "| host:", host, "| registrable:", registrable)
+    print("  uses_https:", p.scheme == "https")
+    print("  is_official_brand_domain:", registrable == brand_domain)
+    print("  contains_brand_string:", brand_label in host)
+    ratio = difflib.SequenceMatcher(None, label, brand_label).ratio()
+    print("  label_similarity_to_metamask: %.2f" % ratio)
+    stripped = re.sub(r"^\d+x", "", label)
+    print("  label_without_numeric_prefix:", stripped, "| equals_brand:", stripped == brand_label)
+    print("  numeric_prefix:", bool(re.match(r"^\d", label)))
+    print("  tld:", labels[-1] if labels else "")

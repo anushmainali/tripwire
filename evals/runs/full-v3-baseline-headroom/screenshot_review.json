@@ -1,0 +1,19 @@
+{
+  "reviewer": "Codex visual/metadata inspection of saved local artifacts; no URLs fetched",
+  "summary": "The three sandbox cases yielded a DNS failure with a uniform blank image, a Cuttly 404 page, and a FedEx access-denied page (HTTP 200). No live phishing form was captured in this benchmark; these cases demonstrate sandbox execution and limitations, not successful phishing-page detection.",
+  "cases": [
+    {
+      "case_id": "url-154131",
+      "assessment": "Uniform image; failed DNS navigation."
+    },
+    {
+      "case_id": "url-69188",
+      "assessment": "Visually inspected: branded Cuttly page says 404 and page does not exist."
+    },
+    {
+      "case_id": "synthetic-039",
+      "assessment": "Visually inspected: FedEx page says request cannot be processed and permission to view is denied; HTTP 200 does not mean tracking content was accessible."
+    }
+  ],
+  "source_run": "full-v2 (unchanged investigator predictions)"
+}

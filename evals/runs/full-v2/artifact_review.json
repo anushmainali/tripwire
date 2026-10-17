@@ -18,6 +18,18 @@
       "file": "droid_artifacts/url-157661/url_parse.py.txt",
       "flag": "review_import:urllib.parse",
       "assessment": "Reviewed source uses URL string parsing only; no network or dynamic execution calls. Reads only case input JSON/text."
+    },
+    {
+      "case_id": "url-221384",
+      "file": "droid_artifacts/url-221384/analyze_host.py.txt",
+      "flag": "review_import:urllib.parse",
+      "assessment": "Static source inspected: offline URL parsing only, local case input reads, no network or dynamic execution calls."
+    },
+    {
+      "case_id": "url-121590",
+      "file": "droid_artifacts/url-121590/domain_check.py.txt",
+      "flag": "review_import:urllib.parse",
+      "assessment": "Static source inspected: offline URL parsing only, local case input reads, no network or dynamic execution calls."
     }
   ]
 }
