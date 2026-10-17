@@ -98,7 +98,7 @@ def classify_detailed(text: str, *, model: str = DEFAULT_MODEL, timeout: float =
         return Classification("suspicious", model, error="input_too_long")
     try:
         response = complete(
-            BASELINE_PROMPT, json.dumps({"forwarded_text": text}), model=model, timeout=timeout, max_tokens=16
+            BASELINE_PROMPT, json.dumps({"forwarded_text": text}), model=model, timeout=timeout, max_tokens=128
         )
     except GatewayError as error:
         return Classification("suspicious", model, error=str(error))
