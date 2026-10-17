@@ -105,7 +105,8 @@ orchestrator ──► prepare_case(): /tmp/tripwire-cases/<id>/{message.txt, en
              ◄── findings become Evidence("droid:<check>") → verdict
 ```
 
-- **Per-case session:** a fresh Droid `run()` per investigation, with `cwd` in a throwaway case directory (never
+- **Per-case session:** a fresh Droid `run()` per investigation (model `claude-haiku-5-5` by default: in our A/B on
+  the demo case it took ~34 s versus ~49 s for Factory's default, with equivalent findings), with `cwd` in a throwaway case directory (never
   the repo), `Autonomy.HIGH`, `auto_reject_permission_requests=True`, and a ≤ 75 s timeout.
 - **Custom tools:** in-process MCP tools built with `droid_sdk.mcp.create_sdk_mcp_server`. The Droid gets the
   sandbox's page capture without being able to fetch the URL itself.

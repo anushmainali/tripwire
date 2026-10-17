@@ -118,6 +118,7 @@ async def _run_droid(case_dir: Path, detonation: Future | None, timeout: float):
     return await run(
         PROMPT,
         cwd=case_dir,
+        model=config.droid_model(),
         output=DroidReport,
         timeout=timeout,
         api_key=config.factory().api_key,

@@ -90,6 +90,12 @@ def chalk_router() -> ChalkRouterConfig:
     return ChalkRouterConfig(api_key=_get("CHALK_ROUTER_API_KEY"), env_id=_get("CHALK_ENV_ID"))
 
 
+def droid_model() -> str | None:
+    """Droid model id. Default claude-haiku-5-5: ~34 s vs ~49 s for Factory's default on our demo case, with
+    equivalent findings. Override with TRIPWIRE_DROID_MODEL (see `droid_sdk.list_models()`)."""
+    return _get("TRIPWIRE_DROID_MODEL", required=False) or "claude-haiku-5-5"
+
+
 def shot_token() -> str | None:
     """Shared token for uploading screenshots to the demo/screenshot host."""
     return _get("TRIPWIRE_SHOT_TOKEN", required=False)
