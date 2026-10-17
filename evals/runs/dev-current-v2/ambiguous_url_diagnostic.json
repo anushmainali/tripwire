@@ -1,0 +1,24 @@
+{
+  "input": "https://qzpmkt.example/x",
+  "note": "Separate synthetic development URL; no website fetched. Frozen benchmark unaffected.",
+  "responses": [
+    {
+      "max_tokens": 128,
+      "finish_reason": "stop",
+      "content": "suspicious",
+      "usage": {
+        "completion_tokens": 109,
+        "prompt_tokens": 233,
+        "total_tokens": 342,
+        "completion_tokens_details": null,
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "image_tokens": null,
+          "text_tokens": null
+        }
+      }
+    }
+  ]
+}

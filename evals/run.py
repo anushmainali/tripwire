@@ -180,7 +180,12 @@ def main():
     parser.add_argument("--model", default="anthropic/claude-haiku-5-5")
     parser.add_argument("--workers", type=int, default=1, choices=range(1, 6))
     parser.add_argument("--detonate-case", action="append", default=[], help="Case ID to open only in Chalk; max 3")
+    parser.add_argument(
+        "--reuse-tripwire", type=Path, help="Reuse a complete unchanged investigator run; consumes a run slot"
+    )
     args = parser.parse_args()
+    if args.reuse_tripwire and not args.full_run:
+        parser.error("Prediction reuse requires --full-run")
     if args.full_run and args.mode != "full":
         parser.error("Full benchmark requires the real full investigator; use development cases for stubs/ablations.")
     if args.mode == "full":
@@ -210,6 +215,12 @@ def main():
         "workers": args.workers,
         "detonation_cases": sorted(selected),
     }
+    reused = []
+    if args.reuse_tripwire:
+        from evals.reuse import load_tripwire, source_fingerprints
+
+        reused, reuse_metadata = load_tripwire(args.reuse_tripwire, rows, source_fingerprints(ROOT))
+        identity["reuse"] = reuse_metadata
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
         if any(manifest.get(k) != v for k, v in identity.items()):
@@ -235,6 +246,19 @@ def main():
     output = args.out / "predictions.jsonl"
     results = read_results(output)
     validate_saved(results, rows)
+    if reused:
+        saved = {(r["case_id"], r["system"]): r for r in results}
+        with output.open("a") as f:
+            for row in reused:
+                key = (row["case_id"], row["system"])
+                if key in saved:
+                    if saved[key] != row:
+                        raise ValueError("Saved reused prediction differs from source")
+                    continue
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+                results.append(row)
+            f.flush()
+            os.fsync(f.fileno())
     done = {(r["case_id"], r["system"]) for r in results}
     if len(done) != len(results):
         parser.error("Duplicate saved predictions")

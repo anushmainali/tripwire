@@ -83,6 +83,18 @@ def report(run_dir: Path, destination: Path):
         "| Metric | Baseline | Tripwire |",
         "|---|---:|---:|",
     ]
+    if manifest.get("reuse"):
+        reuse = manifest["reuse"]
+        lines[4:4] = [
+            f"**Baseline-only correction pass:** {reuse['reused_tripwire_cases']} unchanged Tripwire predictions "
+            f"were reused from `{Path(reuse['source_run']).name}` (investigator commit `{reuse['source_git_sha']}`). "
+            "Only baseline calls were repeated with a larger token budget. This is not a fresh run of both systems.",
+            "The earlier 128-token baseline produced incomplete responses. The corrected cap is 1,024 tokens; "
+            "model, prompt, labels and Tripwire outputs are unchanged. Original predictions remain archived. "
+            "The correction was made after observing failures, so this is a post-hoc engineering correction, "
+            "not an untouched first-pass experiment.",
+            "",
+        ]
     for title, key, fmt in [
         ("Cases", "n", str),
         ("Exact accuracy (failures incorrect)", "accuracy", pct),

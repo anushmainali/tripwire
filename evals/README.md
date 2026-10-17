@@ -99,3 +99,21 @@ substitute evidence count or model confidence for correctness.
 Current development artifacts intentionally do not claim a full benchmark win.
 The failed initial gateway smoke remains in `dev-checks-v1` for diagnosis; use
 `dev-checks-v2` for the corrected checks-only smoke and real remote scoring receipt.
+
+## Baseline token-budget correction (final run slot)
+
+Full-v2 finished with 27 incomplete baseline responses at a 128-token cap. A separate
+invented URL returned a one-word label but consumed 109 completion tokens. The final
+pass raises only the baseline cap to 1,024; the prompt, model and labels stay fixed.
+All Tripwire predictions are reused unchanged, guarded by frozen source/input hashes.
+This consumes slot 3/3, and is explicitly a post-hoc correction, not a fresh tool run.
+
+```bash
+../HackHarvard/.venv/bin/python -m evals.run --mode full --full-run --workers 2 \
+  --out evals/runs/full-v3-baseline-headroom --reuse-tripwire evals/runs/full-v2 \
+  --detonate-case url-69188 --detonate-case url-154131 --detonate-case synthetic-039
+```
+
+The selected detonation flags preserve input identity; no sandbox or Droid is called
+again. Use the corrected output directory for Chalk scoring and final report generation.
+Original full-v2 predictions and its report remain archived without replacement.
