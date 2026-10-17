@@ -266,10 +266,15 @@ def report(run_dir: Path, destination: Path):
         "",
     ]
     (destination / "RESULTS.md").write_text("\n".join(lines))
-    chart(metrics, destination / "results_chart.png", status, manifest["cases"])
+    chart_status = status
+    note = ""
+    if manifest.get("reuse"):
+        chart_status += " · baseline corrected"
+        note = f" · Tripwire reused · {len(manifest.get('detonation_cases', []))} sandbox cases"
+    chart(metrics, destination / "results_chart.png", chart_status, manifest["cases"], note)
 
 
-def chart(metrics, path: Path, status: str, count: int):
+def chart(metrics, path: Path, status: str, count: int, note: str = ""):
     import matplotlib
 
     matplotlib.use("Agg")
@@ -290,7 +295,7 @@ def chart(metrics, path: Path, status: str, count: int):
     ax.set_xticks(x, names)
     ax.set_ylim(0, 113)
     ax.set_ylabel("Percent")
-    ax.set_title(f"Tripwire · {status}\nn = {count} paired cases", loc="left", fontweight="bold", pad=18)
+    ax.set_title(f"Tripwire · {status}\nn = {count} paired cases{note}", loc="left", fontweight="bold", pad=18)
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(axis="y", alpha=0.15)
     ax.set_axisbelow(True)

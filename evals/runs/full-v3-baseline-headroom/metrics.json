@@ -1,38 +1,38 @@
 {
   "baseline": {
-    "n": 66,
+    "n": 120,
     "labels": {
-      "safe": 28,
-      "scam": 30,
-      "suspicious": 8
+      "safe": 60,
+      "scam": 50,
+      "suspicious": 10
     },
-    "accuracy": 0.6666666666666666,
-    "successful_call_accuracy": 0.6666666666666666,
-    "scam_precision": 0.7407407407407407,
-    "scam_recall": 0.6666666666666666,
+    "accuracy": 0.7166666666666667,
+    "successful_call_accuracy": 0.7166666666666667,
+    "scam_precision": 0.8095238095238095,
+    "scam_recall": 0.68,
     "false_positive_rate": 0.0,
-    "warning_false_positive_rate": 0.17857142857142858,
+    "warning_false_positive_rate": 0.16666666666666666,
     "error_count": 0,
     "errors": {},
-    "median_latency_s": 1.3549000000000002,
+    "median_latency_s": 1.30655,
     "mean_cost_usd": null,
     "cost_known_cases": 0,
     "failed_check_count": 0,
     "confusion_matrix": {
       "safe": {
-        "safe": 23,
-        "suspicious": 5,
+        "safe": 50,
+        "suspicious": 10,
         "scam": 0
       },
       "suspicious": {
         "safe": 0,
-        "suspicious": 1,
-        "scam": 7
+        "suspicious": 2,
+        "scam": 8
       },
       "scam": {
         "safe": 2,
-        "suspicious": 8,
-        "scam": 20
+        "suspicious": 14,
+        "scam": 34
       }
     }
   },

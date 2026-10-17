@@ -1,29 +1,50 @@
 # Tripwire evaluation results
 
-**DEVELOPMENT SMOKE — NOT THE BENCHMARK.**
+**Frozen benchmark.**
 
-These 8 separate development messages validate integration only. They do not measure real-world scam detection or establish an advantage over the baseline.
-The frozen 120-case benchmark has not been run. Droid and detonation are absent from this checks ablation.
+**Baseline-only correction pass:** 120 unchanged Tripwire predictions were reused from `full-v2` (investigator commit `f754dc895e158cd404034d5c0e517f5ea75f57b5`). Only baseline calls were repeated with a larger token budget. This is not a fresh run of both systems.
+The earlier 128-token baseline produced incomplete responses. The corrected cap is 1,024 tokens; model, prompt, labels and Tripwire outputs are unchanged. Original predictions remain archived. The correction was made after observing failures, so this is a post-hoc engineering correction, not an untouched first-pass experiment.
 
-Run: `dev-checks-v2`. Code commit: `abc3cb202344b34c9a89ce42949db06be3ee05b3`. Mode: `checks`.
-Created: 2026-10-17T17:58:49.159283+00:00. Baseline model: `anthropic/claude-haiku-5-5`.
+Run: `full-v3-baseline-headroom`. Code commit: `5a67b6364e522b9f8ff7301195d4cd0dac01359a`. Mode: `full`.
+Created: 2026-10-17T21:06:41.830750+00:00. Baseline model: `anthropic/claude-haiku-5-5`.
 Investigator model: its pinned source configuration (may differ from baseline; this is a system comparison).
 
 | Metric | Baseline | Tripwire |
 |---|---:|---:|
-| Cases | 8 | 8 |
-| Exact accuracy (failures incorrect) | 100.0% | 100.0% |
-| Scam precision | 100.0% | 100.0% |
-| Scam recall | 100.0% | 100.0% |
+| Cases | 120 | 120 |
+| Exact accuracy (failures incorrect) | 71.7% | 71.7% |
+| Accuracy among successful calls | 71.7% | 71.7% |
+| Scam precision | 81.0% | 88.9% |
+| Scam recall | 68.0% | 64.0% |
 | Strict false-positive rate | 0.0% | 0.0% |
-| Warning false-positive rate | 0.0% | 0.0% |
-| Median latency (seconds) | 1.570 | 2.502 |
+| Warning false-positive rate | 16.7% | 20.0% |
+| Median latency (seconds) | 1.307 | 21.866 |
 | Inference failures / fallbacks | 0 | 0 |
-| Failed evidence checks | 0 | 0 |
+| Failed evidence checks | 0 | 1 |
 | Mean USD / case | unknown | unknown |
+
+Recorded runtime configuration: verdict `anthropic/claude-sonnet-5-5`, Droid `claude-haiku-5-5`. Package versions and interpreter are preserved in `runtime_info.json`.
+
+Droid runtime coverage: **76/120 confirmed successful sessions**; 12 cases report written analysis scripts. Failed or timed-out sessions are not counted as successful tool use, even when a fallback verdict is correct.
+
+Sandbox coverage: **3/120 cases requested detonation**; 3 returned screenshot paths; 2 reported successful page capture. Selected IDs: `synthetic-039`, `url-154131`, `url-69188`.
+All other cases use the investigation path with sandbox detonation disabled. Droid may be skipped by the production fast path when no analyzable artifacts or warning signs exist. A returned screenshot path does not by itself establish image quality or successful phone delivery.
+Offline screenshot audit: 1 near-uniform images and 0 missing/undecodable images among 3 sandbox requests. Saved images and dimensions are in `screenshot_audit.json`. This audit does not establish successful iMessage attachment delivery.
+The three sandbox cases yielded a DNS failure with a uniform blank image, a Cuttly 404 page, and a FedEx access-denied page (HTTP 200). No live phishing form was captured in this benchmark; these cases demonstrate sandbox execution and limitations, not successful phishing-page detection.
 
 Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall treat only `scam` as positive. Strict FPR is scam predictions / gold-safe cases; warning FPR includes suspicious predictions. Missing denominators are N/A. Latency includes process startup and failures.
 Cost is **unknown**: the investigator does not expose complete billed token, Droid, and sandbox usage. Baseline token counts, when available, are retained in raw results; no price assumptions are substituted.
+
+## Paired outcomes and uncertainty
+
+Both systems correct: 76; baseline alone correct: 10; Tripwire alone correct: 10; neither correct: 24.
+
+| System | Accuracy: 95% Wilson interval | Strict FPR: 95% Wilson interval |
+|---|---:|---:|
+| baseline | 63.0%–79.0% | 0.0%–6.0% |
+| tripwire | 63.0%–79.0% | 0.0%–6.0% |
+
+Intervals describe binomial sampling uncertainty only. This selected convenience set is not a random sample of incoming messages; the intervals do not account for selection bias, label uncertainty, shared templates, or temporal drift. Zero observed false positives does not imply zero risk.
 
 ## Baseline confusion matrix
 
@@ -31,9 +52,9 @@ Gold rows; predicted columns, including fallbacks.
 
 | Gold | safe | suspicious | scam |
 |---|---:|---:|---:|
-| safe | 4 | 0 | 0 |
-| suspicious | 0 | 0 | 0 |
-| scam | 0 | 0 | 4 |
+| safe | 50 | 10 | 0 |
+| suspicious | 0 | 2 | 8 |
+| scam | 2 | 14 | 34 |
 
 ## Tripwire confusion matrix
 
@@ -41,26 +62,30 @@ Gold rows; predicted columns, including fallbacks.
 
 | Gold | safe | suspicious | scam |
 |---|---:|---:|---:|
-| safe | 4 | 0 | 0 |
-| suspicious | 0 | 0 | 0 |
-| scam | 0 | 0 | 4 |
+| safe | 48 | 12 | 0 |
+| suspicious | 0 | 6 | 4 |
+| scam | 0 | 18 | 32 |
 
 ## Source strata
 
 | Source | System | N | Accuracy | Warning FPR |
 |---|---|---:|---:|---:|
-| development | baseline | 8 | 100.0% | 0.0% |
-| development | tripwire | 8 | 100.0% | 0.0% |
+| tripwire_synthetic | baseline | 40 | 100.0% | 0.0% |
+| tripwire_synthetic | tripwire | 40 | 92.5% | 15.0% |
+| uci_phiusiil | baseline | 40 | 45.0% | 30.0% |
+| uci_phiusiil | tripwire | 40 | 37.5% | 40.0% |
+| uci_sms | baseline | 40 | 70.0% | 20.0% |
+| uci_sms | tripwire | 40 | 85.0% | 5.0% |
 
 ## Evidence review
 
-Author spot-check: 6/10 evidence items fully supported under a strict text/check-grounding rubric. This is an unblinded agent review, not independent expert validation.
-6 fully supported, 3 partially supported, 1 unsupported. The fake-check message was mislabeled as a rental pattern with mismatched verification advice. Two findings were truncated mid-word. Three findings include external or unobserved claims beyond supplied checks. Correct top-level labels therefore do not establish evidence quality.
+Author spot-check: 21/32 evidence items fully supported under a strict text/check-grounding rubric. This is an unblinded agent review, not independent expert validation.
+Reviewed all 32 evidence items from seven selected cases: 21 supported, 10 partial, 1 unsupported. Main issues: unsupported .ru pricing/prevalence claim; assumed lack of prize entry; external/general claims presented as observed facts; static HTML checks overstated. Historical benign URL no longer resolves and historical phishing shortener returns 404. Failed-check statements can be supported statements of failure, not successful investigation. Registry claims were checked for consistency with saved results only; no site was fetched locally.
 See the run's `evidence_review.json` for per-item support and limitations.
 
 ## Chalk Evaluations
 
-Evaluation ID: `cmvcpbq5z01uq013e1vpjshu2`. Run ID: `70688701-9271-407c-8e15-79f4ff336f64`.
+Evaluation ID: `cmvcw1ytn05a501y5sd6ed1ge`. Run ID: `9e278dce-1ee1-426c-aeb8-5961e73a284c`.
 Status: `EvaluationRunStatus.SUCCEEDED`. Remote row/score verification: **True**.
 Systems ran locally; saved predictions were uploaded as a Chalk dataset. A deployed replay task returns each prediction, and eight remote SQL scorers measure correctness and confusion counts. Every returned output and score is checked against local calculations; task/scorer row errors invalidate verification even if the run status says SUCCEEDED.
 
@@ -68,7 +93,7 @@ Systems ran locally; saved predictions were uploaded as a Chalk dataset. A deplo
 
 ```bash
 ../HackHarvard/.venv/bin/python -m pytest tests evals -q
-../HackHarvard/.venv/bin/python -m evals.report evals/runs/dev-checks-v2 --out evals
+../HackHarvard/.venv/bin/python -m evals.report evals/runs/full-v3-baseline-headroom --out evals
 ```
 
 See [DATASET.md](DATASET.md) for provenance, licenses, class policy, and historical-label limitations. Synthetic and selected cases are not representative of incoming scam prevalence. This benchmark does not evaluate Scamio, Norton, or another commercial system. Baseline and investigator have different prompts and potentially different models, so changes cannot be attributed to tools alone.

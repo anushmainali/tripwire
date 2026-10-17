@@ -37,9 +37,10 @@ real deterministic/RDAP checks and the verdict model, with no Droid/detonation.
 `full` includes Droid and requires the real integration. Detonation is off by default; `--detonate-case ID` selects at most three cases
 for the production Chalk sandbox path. Record those IDs before predictions. It never runs the Photon poller.
 
-## Full benchmark (shared budget: at most 3 runs, 150 cases each)
+## Archived inference commands (all 3 run slots consumed)
 
-Do not start until the integration development smoke and detonation review pass.
+The benchmark is complete. Do not start another full run. Commands below document
+the original invocation; code hashes prevent resuming against changed code.
 The full-run ledger is persisted **before** execution. Interrupted runs consume a
 slot; resume them instead of starting another full run. Do not delete or reset
 the ledger to bypass the budget.
@@ -96,9 +97,10 @@ warning false-positive rates. Review evidence items against actual message/check
 outputs and save documented assessments as `<run>/evidence_review.json`; never
 substitute evidence count or model confidence for correctness.
 
-Current development artifacts intentionally do not claim a full benchmark win.
-The failed initial gateway smoke remains in `dev-checks-v1` for diagnosis; use
-`dev-checks-v2` for the corrected checks-only smoke and real remote scoring receipt.
+Final artifacts at `evals/RESULTS.md`, `results.csv` and `results_chart.png` use
+`full-v3-baseline-headroom`, with real Chalk scores verified for all 240 rows.
+Both systems reached 71.7% accuracy; see [INTERPRETATION.md](INTERPRETATION.md).
+Development and interrupted outputs remain archived; do not substitute their scores.
 
 ## Baseline token-budget correction (final run slot)
 
@@ -117,3 +119,11 @@ This consumes slot 3/3, and is explicitly a post-hoc correction, not a fresh too
 The selected detonation flags preserve input identity; no sandbox or Droid is called
 again. Use the corrected output directory for Chalk scoring and final report generation.
 Original full-v2 predictions and its report remain archived without replacement.
+
+Final artifact regeneration (no inference or additional budget):
+
+```bash
+MPLCONFIGDIR=/tmp/tripwire-matplotlib ../HackHarvard/.venv/bin/python -m evals.report evals/runs/full-v3-baseline-headroom
+# Re-read and verify the existing remote run; no new model calls:
+../HackHarvard/.venv/bin/python evals/chalk_score.py evals/runs/full-v3-baseline-headroom
+```
