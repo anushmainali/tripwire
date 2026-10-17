@@ -27,6 +27,7 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
+- **17:35 Sat:** merged final evals (full-v3-baseline-headroom); SUBMISSION Results filled (tie 71.7%; Tripwire 0 scam→safe vs 2, precision 88.9 vs 81.0). Remaining: README results sentence check, phone re-test, polish.
 - **17:05 Sat:** merged origin/evals (88 tests pass). Evals full-v2 run is in progress (pid running, 2 of 3 full slots used). When `evals/runs/full-v2/metrics.json` + RESULTS.md are final, fill SUBMISSION.md/README numbers.
 - **Done:** contracts; investigator (extract → link/RDAP/script/payment checks → **Droid** step → **Chalk sandbox
   detonation** → evidence-only verdict via Chalk Model Gateway `anthropic/claude-sonnet-5-5`, deterministic

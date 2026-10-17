@@ -171,6 +171,10 @@ benign look-alikes (real bank alerts, 2FA codes, real delivery notices) to measu
 accuracy, scam precision/recall, **false-positive rate**, evidence grounding, and latency. Scoring runs in Chalk
 Evaluations.
 
+**Result (120 cases):** accuracy tied at 71.7% (baseline vs Tripwire); scam precision 81.0% → 88.9%; scams called
+"safe" 2 → 0; no legit message called "scam" by either; median latency 1.3 s → ~22 s. Caveats (post-hoc baseline token-cap
+fix, only 3 sandbox cases, convenience sample) are in `evals/RESULTS.md`.
+
 ![Baseline vs Tripwire](evals/results_chart.png)
 
 ## Setup and run

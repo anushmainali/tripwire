@@ -60,11 +60,25 @@ re-checks the message with it, without just caving to what you say. It never say
   ScalingGroup. Its form submits nowhere.
 
 ## Results
-_(Filled from `evals/RESULTS.md` after the final benchmark run.)_
-- Accuracy: baseline **TBD** vs Tripwire **TBD**
-- False-positive rate on legit messages: baseline **TBD** vs Tripwire **TBD**
-- Median time to verdict: ~40 s with full investigation (sandbox + Droid); a few seconds for messages with nothing to
-  investigate.
+Frozen 120-case labeled set (60 safe / 50 scam / 10 suspicious), scored with Chalk Evaluations. Full detail and
+caveats in `evals/RESULTS.md`.
+
+| | Single LLM call (baseline) | Tripwire |
+|---|---:|---:|
+| Exact 3-class accuracy | 71.7% | 71.7% |
+| Scam precision | 81.0% | **88.9%** |
+| Scam recall | **68.0%** | 64.0% |
+| Legit messages wrongly called *scam* | 0 / 60 | 0 / 60 |
+| Scams wrongly called *safe* | 2 / 50 | **0 / 50** |
+| Median latency | 1.3 s | ~22 s |
+
+Honest read: on text-only accuracy the two are tied (95% CI 63–79%). Tripwire's edge is not a higher headline
+number; it is that it never waved a scam through as safe, is more precise when it says "scam", and backs every
+verdict with evidence it actually gathered (domain age, redirects, a sandboxed look at the page). Droid ran
+successfully on 76/120 cases; detonation was exercised on only 3 (budget), so page-level benefits are demonstrated
+live, not measured here. The baseline's token cap was corrected after the fact (disclosed in RESULTS.md).
+- Median time to verdict in the live app: ~40 s with full investigation (sandbox + Droid); a few seconds for
+  messages with nothing to investigate.
 
 ## Challenges we ran into
 - **Never touching the bad link ourselves.** Every network contact with a suspicious URL had to happen inside the
