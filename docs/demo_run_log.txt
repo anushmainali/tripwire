@@ -1,15 +1,15 @@
 🚨 Likely scam (High confidence)
 
-• The message claims to be PostalPlus, but its link goes to chalk.ai, not postalplus.example.
-• The linked page asks for your name, card number, expiry date and CVV to pay $1.99.
-• This message matches a known fake delivery scam pattern.
+• The link goes to a throwaway cloud-hosting address, not PostalPlus's own website.
+• The payment page asks for your name, card number, expiry date and CVV for a $1.99 fee.
+• The page displays PostalPlus branding but is not hosted on PostalPlus's real domain.
 
 ✅ Safe check: open the PostalPlus app or type its official website yourself and enter your tracking number. Don't tap the link or reply.
 Reply "why" for the full investigation. 
 
 [PASS] verdict is scam/suspicious (scam/high)
-[PASS] pipeline time < 85s (44.5s)
-[PASS] screenshot valid (/tmp/tripwire-detonations/1141c5cabb83/shot.jpg)
-[PASS] hosted link uploaded (https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/s/2aEsadEj8Y5zXWIr)
+[PASS] pipeline time < 85s (46.4s)
+[PASS] screenshot valid (/tmp/tripwire-detonations/3b42b698d1e1/shot.jpg)
+[PASS] hosted link uploaded (https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/s/Euj4JT1LRZb1mZsP)
 [PASS] report page 200 html
 [PASS] image 200 image/jpeg

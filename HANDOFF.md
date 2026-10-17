@@ -68,7 +68,20 @@ status-only HANDOFF updates when nothing changed.
    - Then re-run `scripts/demo_check.py`, re-check DEMO.md backup messages (the 2FA message can come back if it now
      returns safe), keep all tests + ruff green, commit and push.
 
+8. **NEW (7:07 PM Sat, from human's demo_check run): don't name the hosting parent as if it were the scam site.**
+   demo_check printed "the link goes to chalk.ai, not postalplus.example" — the demo trap is hosted on a Chalk
+   serverless subdomain, and a Chalk judge seeing "chalk.ai" in a scam verdict is a bad look. Generalize properly:
+   when the link host is a free/shared cloud-hosting or serverless subdomain (e.g. `*.svls.customers.gcp.chalk.ai`,
+   `*.vercel.app`, `*.netlify.app`, `*.pages.dev`, `*.workers.dev`, `*.github.io`, `*.web.app`, `*.herokuapp.com`,
+   `*.onrender.com`, `*.glitch.me`), phrase the evidence as "the link goes to a throwaway cloud-hosting subdomain,
+   not <brand>'s own site" — a real scam signal — and never present the hosting provider's brand as the
+   impersonator/scam domain. Evidence wording + a hosting-suffix list only; add tests. Re-run
+   `python -m scripts.demo_check` afterwards and confirm the output no longer says "chalk.ai".
+   Also: `scripts/demo_check.py` must be run as `python -m scripts.demo_check` — make sure DEMO.md/README say so
+   (running it as a file path fails with ModuleNotFoundError: src).
+
 ## Status: Lead (Claude Code, `main`)
+- **Sat night:** queue 8 DONE: `HOSTING_SUFFIXES` + `throwaway_hosting` evidence in `checks/link.py`, tests/test_hosting.py; live demo_check passes, verdict no longer names chalk.ai (only the hosted URL line contains it). DEMO/README already use `python -m scripts.demo_check`. 129 tests pass.
 - **19:5x Sat:** queue 7 DONE: dev set `evals/fixtures/dev_false_alarms.jsonl` + `scripts/dev_false_alarms.py` + `tests/test_false_alarms.py`; fixed code-forwarding scam miss and "delivered today" urgency false alarm in `checks/script.py`. Chase 2FA text already safe. README/SUBMISSION note added. 126 tests pass.
 - **19:30 Sat:** queue 6 DONE as prototype: `src/copilot/call.py` (flag-gated, offline, tested; no voice transport). Whole work queue complete. Remaining: human phone re-test; final report at 7:30 AM + tag v1.0.
 - **19:15 Sat:** queue 3,4,5 DONE (grounded TLD wording; README Mermaid diagram; DEMO.md backups/shot list/fallback; docs/demo_run_log.txt from live demo_check). Remaining: queue 6 moonshot (call co-pilot, flag-gated, OFF) + phone re-test by human.

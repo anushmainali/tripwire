@@ -18,6 +18,11 @@ SUSPICIOUS_TLDS = {
     "cc", "ws", "vip", "club", "support", "help", "services", "win", "bid", "loan", "work", "rest", "cyou", "sbs",
     "lol", "mobi", "su", "pw", "fun", "space", "website", "info", "ru", "cn", "zip", "mov", "co",
 }  # fmt: skip
+HOSTING_SUFFIXES = (
+    "svls.customers.gcp.chalk.ai", "vercel.app", "netlify.app", "pages.dev", "workers.dev", "github.io", "web.app",
+    "firebaseapp.com", "herokuapp.com", "onrender.com", "glitch.me", "replit.app", "repl.co", "surge.sh",
+    "fly.dev", "railway.app", "azurewebsites.net", "blogspot.com", "weebly.com", "wixsite.com",
+)  # fmt: skip
 HOMOGLYPHS = str.maketrans({"0": "o", "1": "l", "3": "e", "5": "s", "7": "t", "@": "a", "$": "s", "|": "l"})
 OFFICIAL = {d for domains in BRANDS.values() for d in domains}
 
@@ -32,6 +37,15 @@ def levenshtein(a: str, b: str) -> int:
             cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))
         prev = cur
     return prev[-1]
+
+
+def hosting_suffix(host: str) -> str | None:
+    """Free/shared cloud-hosting suffix this host is a subdomain of, if any."""
+    host = host.lower().rstrip(".")
+    for suffix in HOSTING_SUFFIXES:
+        if host.endswith("." + suffix):
+            return suffix
+    return None
 
 
 def is_official(host: str) -> str | None:
@@ -68,7 +82,10 @@ def check_links(entities: Entities) -> list[Evidence]:
     for host in entities.domains[:5]:
         reg = registrable_domain(host)
         tld = reg.rsplit(".", 1)[-1]
-        official = is_official(host)
+        hosted = hosting_suffix(host)
+        if hosted:
+            reg = host  # never present the hosting provider's own brand as the site
+        official = None if hosted else is_official(host)
         if official:
             out.append(Evidence("official_domain", f"{host} is an official {official} domain", "green"))
             continue
@@ -83,9 +100,27 @@ def check_links(entities: Entities) -> list[Evidence]:
         if any(unicodedata.category(c).startswith("L") and ord(c) > 127 for c in host):
             out.append(Evidence("homoglyph", f"{host} contains look-alike non-Latin characters", "red"))
         brand = lookalike_brand(host)
+        claimed = entities.claimed_brand
+        if hosted:
+            who = f"{claimed.upper()}'s" if claimed and claimed in BRANDS else "the sender's"
+            out.append(
+                Evidence(
+                    "throwaway_hosting",
+                    f"The link goes to a throwaway cloud-hosting subdomain, not {who} own site",
+                    "red",
+                )
+            )
+            if not brand:
+                continue
         if brand:
             real = BRANDS[brand][0]
-            out.append(Evidence("lookalike_domain", f"{reg} imitates {brand.upper()} — the real site is {real}", "red"))
+            out.append(
+                Evidence(
+                    "lookalike_domain",
+                    f"{host if hosted else reg} imitates {brand.upper()} — the real site is {real}",
+                    "red",
+                )
+            )
         if reg in SHORTENERS:
             out.append(
                 Evidence("url_shortener", f"{reg} is a link shortener that hides the real destination", "yellow")
@@ -100,7 +135,6 @@ def check_links(entities: Entities) -> list[Evidence]:
             )
         if host.count(".") >= 4 or len(host) > 40:
             out.append(Evidence("long_host", f"{host} is an unusually long, nested address", "yellow"))
-        claimed = entities.claimed_brand
         if claimed and claimed in BRANDS and not brand and reg not in SHORTENERS:
             real = BRANDS[claimed][0]
             out.append(
