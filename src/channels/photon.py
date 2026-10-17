@@ -4,9 +4,11 @@ Follows Photon's "Build an iMessage agent" guide (https://photon.codes/docs/beta
 On the shared line only plain messages into the same Space are allowed (no threaded replies).
 """
 
+import json
 import logging
 import mimetypes
 import time
+import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -42,6 +44,19 @@ class ReplyTarget:
     space_id: str
     agent_id: str
     message_id: str
+
+
+def multipart_related(data: bytes, content_type: str, filename: str) -> tuple[bytes, str]:
+    boundary = f"tripwire-{uuid.uuid4().hex}"
+    meta = json.dumps({"contentType": content_type, "sizeBytes": len(data), "filename": filename}).encode()
+    body = (
+        f"--{boundary}\r\nContent-Type: application/json\r\n\r\n".encode()
+        + meta
+        + f"\r\n--{boundary}\r\nContent-Type: {content_type}\r\n\r\n".encode()
+        + data
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
+    return body, f"multipart/related; boundary={boundary}"
 
 
 class PhotonChannel:
@@ -123,20 +138,25 @@ class PhotonChannel:
     def send_text(self, target: ReplyTarget, text: str) -> None:
         self._send(target, SendTextContent(type="text", format="plain", text=text[:MAX_TEXT]), "text")
 
-    def send_image(self, target: ReplyTarget, path: str) -> bool:
+    def upload(self, path: str, key: str):
+        """Upload a file. The API wants multipart/related: a JSON metadata part, then the file bytes."""
         data = Path(path).read_bytes()
-        ctype = mimetypes.guess_type(path)[0] or "image/png"
-        attachment = self.client.projects.upload_attachment(
+        ctype = mimetypes.guess_type(path)[0] or "image/jpeg"
+        body, content_type = multipart_related(data, ctype, Path(path).name)
+        return self.client.projects.upload_attachment(
             UploadAttachmentInput(
-                body=RootModel[bytes](data),
+                body=RootModel[bytes](body),
                 path=UploadAttachmentPath(id=self.cfg.project_id),
                 headers=UploadAttachmentHeader(
-                    content_length=str(len(data)),
-                    content_type=ctype,
-                    idempotency_key=f"tripwire-upload:{target.message_id}:{Path(path).name}",
+                    content_length=str(len(body)),
+                    content_type=content_type,
+                    idempotency_key=key,
                 ),
             )
         )
+
+    def send_image(self, target: ReplyTarget, path: str) -> bool:
+        attachment = self.upload(path, f"tripwire-upload:{target.message_id}:{Path(path).parent.name}")
         for _ in range(6):  # attachment may need a moment before it's sendable (409 AttachmentNotReady)
             try:
                 self._send(target, SendAttachmentContent(type="attachment", attachmentId=attachment.id), "image")
