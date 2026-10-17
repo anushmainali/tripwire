@@ -56,3 +56,4 @@ def test_gateway_configuration_timeout_and_usage():
     assert factory.call_args.kwargs["timeout"] == 25
     assert factory.call_args.kwargs["default_headers"] == {"X-Chalk-Env-Id": "test-env"}
     client.chat.completions.create.assert_called_once()
+    assert "temperature" not in client.chat.completions.create.call_args.kwargs
