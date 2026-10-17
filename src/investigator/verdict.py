@@ -35,6 +35,8 @@ Return ONLY a JSON object:
 {"label": "scam|suspicious|safe", "confidence": "low|medium|high", "scam_type": string or null,
  "script_finding": string or null, "script_severity": "red|yellow|green" or null,
  "cite": [evidence ids, most important first, max 3],
+ "context_note": if USER CONTEXT is given, one short sentence (<= 25 words) telling the user how their context
+   changed or didn't change the verdict, citing the remaining risk; else null,
  "bullets": {"<id>": "plain-English rewrite of that finding, <= 18 words, no new facts"}}"""
 
 
@@ -63,9 +65,17 @@ def _top(evidence: list[Evidence], n: int = 3) -> list[Evidence]:
 
 
 def format_reply(
-    label: Label, confidence: Confidence, bullets: list[str], safe_verify: str, note: str = "", has_links: bool = True
+    label: Label,
+    confidence: Confidence,
+    bullets: list[str],
+    safe_verify: str,
+    note: str = "",
+    has_links: bool = True,
+    context_note: str = "",
 ) -> str:
     lines = [f"{HEADLINE[label]} ({confidence.capitalize()} confidence)", ""]
+    if context_note:
+        lines += [context_note, ""]
     lines += [f"• {b}" for b in bullets]
     if bullets:
         lines.append("")
@@ -110,7 +120,9 @@ def build_verdict(
             label, confidence = det_label, det_conf
     if label == "safe":
         bullets = [b for b in bullets if b] or ["Ran link, payment and scam-pattern checks — nothing alarming found"]
-    reply = format_reply(label, confidence, bullets, safe_verify, note, has_links)
+    context_note = debug.get("llm", {}).get("context_note") if context else None
+    context_note = clip(context_note, 200) if isinstance(context_note, str) else ""
+    reply = format_reply(label, confidence, bullets, safe_verify, note, has_links, context_note)
     return Verdict(label, confidence, scam_type, evidence, safe_verify, reply, debug=debug)
 
 

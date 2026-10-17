@@ -30,7 +30,13 @@ TYPE_ADVICE = {
 GENERIC = "contact the company or person through a number or website you already trust — not the one in the message."
 
 
+PAYMENT_RAILS = {"zelle", "venmo", "cashapp", "paypal"}
+
+
 def safe_verify(brand: str | None, scam_type: str | None) -> str:
+    # A payment app named in the message is usually the rail, not the impersonated party: the scam type advises better.
+    if brand in PAYMENT_RAILS and scam_type in TYPE_ADVICE:
+        return TYPE_ADVICE[scam_type]
     if brand in BRAND_ADVICE:
         return BRAND_ADVICE[brand]
     if brand in BRANDS:

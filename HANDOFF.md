@@ -4,9 +4,23 @@
 
 ## NEEDS HUMAN
 _(Things only the human can do: logins, keys, phone tests. Agents: add items here and keep working around them.)_
-- **Phone test**: start `.venv/bin/python -m src.main` (only ONE poller!) and text a scam message (see DEMO.md once written)
-  to PHOTON_AGENT_HANDLE from PHOTON_TEST_SENDER. Photon's shared line only accepts messages from the assigned sender.
-- Image attachments over iMessage are untested on the shared line; code tries upload+send and falls back to a hosted link.
+_(Human phone test done 2:15 PM Sat — no action needed from the human right now.)_
+
+## HUMAN TEST RESULTS — Lead: fix these next (priority over other polish)
+Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TEST_SENDER:
+- ✅ Poller received the message; "Investigating" + verdict reply arrived on the phone. Core flow works.
+- ❌ **Screenshot link opened a blank white page on the phone.** Log: `src.detonation.sandbox: no page.html from sandbox:
+  SandboxFileSystemError`, then `attachment send failed (ApiError); falling back to link`.
+  1. Debug the SandboxFileSystemError (files written/read from the wrong sandbox path? read before Playwright finished?).
+  2. Make the capture robust: wait for load/networkidle (bounded), then **validate the PNG** (non-trivial byte size and
+     not a single solid colour) before using it. If invalid, retry once; if still invalid, send NO link — describe the
+     page in text instead ("The link opens a page asking for your card number").
+  3. Check the hosted link on a phone-sized viewport: serve the PNG with `Content-Type: image/png` (and/or an HTML page
+     with an `<img>`), confirm it renders. Add a test for the link path.
+- ❌ **Image attachment send fails on the Photon shared line (ApiError)** even though upload works. Log the ApiError
+  status/body (no secrets), re-check Photon beta docs for how to reference an uploaded attachment in sendMessage; if
+  truly unsupported on shared lines, keep the hosted link as the primary path and say so in README.
+- After fixing, add a new NEEDS HUMAN item asking for one more phone test.
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
