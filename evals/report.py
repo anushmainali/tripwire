@@ -105,6 +105,20 @@ def report(run_dir: Path, destination: Path):
             f"{script_cases} cases report written analysis scripts. Failed or timed-out sessions are not "
             "counted as successful tool use, even when a fallback verdict is correct.",
         ]
+    if final:
+        selected = manifest.get("detonation_cases", [])
+        det_rows = [r for r in droid_rows if r.get("detonation_requested")]
+        screenshots = sum(bool(r.get("screenshot_path")) for r in det_rows)
+        lines += [
+            "",
+            f"Sandbox coverage: **{len(det_rows)}/{len(droid_rows)} cases requested detonation**; "
+            f"{screenshots} returned screenshot paths. Selected IDs: "
+            + (", ".join(f"`{case}`" for case in selected) or "none")
+            + ".",
+            "All other cases use the investigation path with sandbox detonation disabled. "
+            "Droid may be skipped by the production fast path when no analyzable artifacts or warning signs exist. "
+            "A returned screenshot path does not by itself establish image quality or successful phone delivery.",
+        ]
     lines += [
         "",
         "Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall "

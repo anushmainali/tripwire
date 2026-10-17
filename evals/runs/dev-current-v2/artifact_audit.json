@@ -1,0 +1,6 @@
+{
+  "method": "inert source capture and AST review hints; scripts are never executed by this audit",
+  "scripts": [],
+  "script_cases": 0,
+  "flagged_scripts": 0
+}
