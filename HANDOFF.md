@@ -41,6 +41,8 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
   `run_live`; community intel memory (`src/investigator/intel.py`, data/intel.db, live only via `intel=True`).
 - **Note for Evals:** after full-v1 started (94b43a4) Lead landed: Droid model default → claude-haiku-5-5 (faster),
   payment-ask fix (no FP on "paid you"), Hi-Mum pattern, context note. A later run would measure the current system.
+- **Evals lane status (seen by Lead 14:27):** Codex hit its usage limit until ~18:52; full-v1 paused at 10 rows (not
+  running). If still stalled by ~21:00, Lead runs the documented resume command in ../hh-evals (evals/README.md).
 - **Next 3 steps:**
   1. Optional: Chalk feature-engine mirror of intel (no feature deployment exists in env yet — risky).
   2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
