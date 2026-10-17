@@ -131,11 +131,20 @@ def _dedupe(items: list[str]) -> list[str]:
     return list(seen)
 
 
+FREEMAIL = r"@(?:gmail|googlemail|yahoo|outlook|hotmail|live|icloud|me|aol|proton|protonmail)\.[a-z.]+"
+
+
 def _claimed_brand(text: str, domains: list[str]) -> str | None:
-    lower = f" {text.lower()} "
+    """Earliest brand named in the text (free-mail addresses ignored), else a brand embedded in a domain."""
+    lower = re.sub(FREEMAIL, " ", text.lower())
+    best: tuple[int, str] | None = None
     for brand, aliases in BRAND_ALIASES.items():
-        if any(alias in lower for alias in aliases):
-            return brand
+        for alias in aliases:
+            m = re.search(rf"(?<![a-z0-9]){re.escape(alias.strip())}(?![a-z0-9])", lower)
+            if m and (best is None or m.start() < best[0]):
+                best = (m.start(), brand)
+    if best:
+        return best[1]
     for domain in domains:  # brand name embedded in a domain, e.g. usps-redeliver.co
         compact = domain.replace("-", "").replace(".", "")
         for brand in BRANDS:

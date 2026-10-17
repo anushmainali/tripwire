@@ -26,7 +26,8 @@ SCAM_TYPES: dict[str, list[str]] = {
         r"\bout of (the )?(country|town)\b.*\b(keys|apartment|house)",
     ],
     "job_or_check_scam": [
-        r"\b(job|position|hiring|remote work|work from home|recruit)\b.*\b(\$\d|per (day|hour|week)|earn)",
+        r"\b(job|position|hiring|remote work|work from home|recruit\w*|data[- ]entry)\b"
+        r".*(\$\d|\bper (day|hour|week)\b|/day|\bearn)",
         r"\b(deposit|cash) (the|this) check\b",
         r"\bsend (back|the rest|the difference)\b",
     ],
@@ -64,7 +65,8 @@ def _has(pattern: str, text: str) -> bool:
 def check_script(text: str, entities: Entities) -> ScriptResult:
     t = text.lower()
     out: list[Evidence] = []
-    matched = [kind for kind, pats in SCAM_TYPES.items() if any(_has(p, t) for p in pats)]
+    hits = {kind: sum(_has(p, t) for p in pats) for kind, pats in SCAM_TYPES.items()}
+    matched = sorted((k for k, n in hits.items() if n), key=lambda k: -hits[k])  # stable: ties keep table order
     scam_type = matched[0] if matched else None
     if scam_type:
         out.append(Evidence("scam_script", f"Matches a known '{scam_type.replace('_', ' ')}' scam pattern", "yellow"))
