@@ -181,6 +181,11 @@ agent on Photon's shared line, using the `photonhq-api` Python client:
 - Per-sender thread state (last case, verdict, user context) lets `why` and context follow-ups work.
 - Investigations run on a small worker pool, so polling never blocks.
 
+### Experimental: call co-pilot
+`src/copilot/call.py` is the transcript-side core of a live call co-pilot (whisper-style alerts when a caller asks for
+secrecy, rushes you, or wants gift cards/codes). It is **off by default** (`TRIPWIRE_CALL_COPILOT=1`), offline, and
+separate from the text pipeline. The Photon voice transport is **not wired up**, so this is a prototype, not a feature.
+
 ## Evals and results
 
 See [`evals/RESULTS.md`](evals/RESULTS.md) and [`evals/README.md`](evals/README.md). We compare **(A) a single LLM
