@@ -1,0 +1,24 @@
+import json
+import os
+import re
+
+here = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(here, "message.txt"), encoding="utf-8") as f:
+    text = f.read()
+
+patterns = {
+    "urls": r"https?://\S+|www\.\S+",
+    "emails": r"[\w.+-]+@[\w-]+\.[\w.]+",
+    "phones": r"\+?\d[\d\s().-]{7,}\d",
+    "btc_addresses": r"\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{25,87})\b",
+    "eth_addresses": r"\b0x[a-fA-F0-9]{40}\b",
+    "amounts": r"\$\s?\d[\d,]*(?:\.\d+)?",
+    "crypto_mentions": r"\b(?:crypto|bitcoin|btc|ethereum|eth|usdt|wallet|recharge|deposit)\b",
+    "payment_before_withdrawal": r"(?i)\bno withdrawals?\b.*\bpay\b|\buntil you pay\b",
+}
+
+results = {}
+for name, pattern in patterns.items():
+    results[name] = re.findall(pattern, text, flags=re.IGNORECASE)
+
+print(json.dumps(results, indent=2))

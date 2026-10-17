@@ -6,6 +6,18 @@
       "file": "droid_artifacts/synthetic-001/analyze_message.py.txt",
       "flag": "review_import:urllib.parse",
       "assessment": "Offline URL parsing only; no network functions or dynamic execution. Reads only message.txt and entities.json."
+    },
+    {
+      "case_id": "url-208130",
+      "file": "droid_artifacts/url-208130/analyze_url.py.txt",
+      "flag": "review_import:urllib.parse",
+      "assessment": "Reviewed source uses URL string parsing only; no network or dynamic execution calls. Reads only case input JSON/text."
+    },
+    {
+      "case_id": "url-157661",
+      "file": "droid_artifacts/url-157661/url_parse.py.txt",
+      "flag": "review_import:urllib.parse",
+      "assessment": "Reviewed source uses URL string parsing only; no network or dynamic execution calls. Reads only case input JSON/text."
     }
   ]
 }

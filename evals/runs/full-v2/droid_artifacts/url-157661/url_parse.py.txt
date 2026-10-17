@@ -1,0 +1,15 @@
+import json
+from urllib.parse import urlparse
+data = json.load(open("entities.json"))
+for u in data["urls"]:
+    p = urlparse(u)
+    host = p.hostname or ""
+    labels = host.split(".")
+    print("scheme:", p.scheme)
+    print("host:", host)
+    print("registrable guess:", ".".join(labels[-2:]))
+    print("subdomain labels:", labels[:-2])
+    print("path:", p.path)
+    print("query:", p.query or "(none)")
+    print("has_login_path:", "login" in p.path.lower())
+    print("brand_word_in_path:", [w for w in ["boa","bank","login","secure","account"] if w in p.path.lower()])

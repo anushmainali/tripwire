@@ -1,0 +1,31 @@
+import json
+import re
+from urllib.parse import urlsplit
+
+# Offline check only: parses the URL string, never opens it.
+with open("message.txt", encoding="utf-8") as f:
+    text = f.read()
+
+urls = re.findall(r"https?://[^\s<>\"']+", text)
+results = []
+for url in urls:
+    parts = urlsplit(url)
+    host = parts.hostname or ""
+    labels = host.split(".")
+    first = labels[0] if labels else ""
+    # CIDv1 in base32 starts with "b" and is typically 59 chars for sha256 dag-pb
+    looks_like_cid = bool(re.fullmatch(r"b[a-z2-7]{50,}", first))
+    results.append({
+        "url": url,
+        "scheme": parts.scheme,
+        "host": host,
+        "host_label_count": len(labels),
+        "subdomain_is_ipfs_cid": looks_like_cid,
+        "cid_length": len(first) if looks_like_cid else None,
+        "registrable_base": ".".join(labels[-2:]) if len(labels) >= 2 else host,
+        "path": parts.path,
+        "has_query_or_fragment": bool(parts.query or parts.fragment),
+        "tld": labels[-1] if labels else "",
+    })
+
+print(json.dumps({"urls_found": len(urls), "results": results}, indent=2))

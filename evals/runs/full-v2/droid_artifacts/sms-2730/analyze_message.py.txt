@@ -1,0 +1,21 @@
+import re, unicodedata
+from pathlib import Path
+
+text = Path("message.txt").read_text(encoding="utf-8", errors="replace")
+print("length:", len(text))
+print("non-ascii chars:", sorted({c for c in text if ord(c) > 127}))
+print("zero-width/format chars:", [hex(ord(c)) for c in text if unicodedata.category(c) == "Cf"])
+print("urls (http/www/scheme):", re.findall(r"(?:https?://|www\.)\S+", text, re.I))
+print("bare domains:", re.findall(r"\b[a-z0-9-]+\.(?:com|co\.uk|uk|net|org|info|xyz|top|io)\b", text, re.I))
+print("emails:", re.findall(r"\S+@\S+", text))
+phones = re.findall(r"(?:\+?\d[\d\s-]{8,}\d)", text)
+for p in phones:
+    digits = re.sub(r"\D", "", p)
+    print("phone raw:", p.strip(), "| digits:", digits, "| length:", len(digits))
+    print("  starts 0906 (UK premium-rate range):", digits.startswith("0906"))
+    print("  starts 090 (UK premium-rate range):", digits.startswith("090"))
+print("money amounts:", re.findall(r"[£$€]\s?\d[\d,]*", text))
+print("per-minute rates:", re.findall(r"\d+\s?p(?:pm|\s*per\s*min\w*)", text, re.I))
+print("claim/reference codes:", re.findall(r"\b\d{2}[A-Z]{1,3}\d{1,3}[A-Z]{0,3}\b", text))
+print("age gate:", re.findall(r"\b\d{2}\+", text))
+print("keywords:", [k for k in ["urgent","cash","holiday","award","claim","call","landline","T&Cs","SAE","prize","won","winner"] if k.lower() in text.lower()])

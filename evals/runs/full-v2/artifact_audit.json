@@ -20,8 +20,36 @@
       "review_flags": [
         "review_import:urllib.parse"
       ]
+    },
+    {
+      "case_id": "url-208130",
+      "file": "droid_artifacts/url-208130/analyze_url.py.txt",
+      "sha256": "0754f5633a2c9ea4bb835d38d7a30c62f6530f6c6791ee46ea97387a73324730",
+      "review_flags": [
+        "review_import:urllib.parse"
+      ]
+    },
+    {
+      "case_id": "url-157661",
+      "file": "droid_artifacts/url-157661/url_parse.py.txt",
+      "sha256": "66b7b3f0765a964abae949748bbcd1eea5525fed1a4c74ad70d30978e0079124",
+      "review_flags": [
+        "review_import:urllib.parse"
+      ]
+    },
+    {
+      "case_id": "synthetic-017",
+      "file": "droid_artifacts/synthetic-017/analyze_message.py.txt",
+      "sha256": "8af68a46eeb9a98f8e0d6f7024445aa5f3d0543370246d387576cc05112f63fd",
+      "review_flags": []
+    },
+    {
+      "case_id": "sms-2730",
+      "file": "droid_artifacts/sms-2730/analyze_message.py.txt",
+      "sha256": "8dd6df7b90e055dc0805035a3dbd1eb2d3e7f1600d47534ef30ad3d2ee5b6f07",
+      "review_flags": []
     }
   ],
-  "script_cases": 3,
-  "flagged_scripts": 1
+  "script_cases": 7,
+  "flagged_scripts": 3
 }
