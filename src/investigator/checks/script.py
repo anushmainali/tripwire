@@ -77,7 +77,7 @@ def check_script(text: str, entities: Entities) -> ScriptResult:
     if _has(SECRECY, t):
         out.append(Evidence("secrecy", "Asks you to keep it secret", "red"))
     rails = sorted({m.group(0).lower() for m in re.finditer(IRREVERSIBLE, t, re.I)})
-    if rails and (entities.amounts or _has(r"\b(pay|send|transfer|deposit|buy)\b", t)):
+    if rails and _has(r"\b(pay|send|transfer|deposit|buy|wire|purchase|load)\b", t):  # an ask, not "paid you"
         out.append(
             Evidence(
                 "irreversible_payment",

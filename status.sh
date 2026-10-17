@@ -61,10 +61,9 @@ show() {
   git log --all --oneline -8 --format='  %h %ar  %s' 2>/dev/null
   echo
 
-  # Needs human (main + evals branch)
+  # Needs human (main's HANDOFF.md is the source of truth; the evals lane merges into it)
   local nh
-  nh=$( { needs_human HANDOFF.md
-          git show origin/evals:HANDOFF.md 2>/dev/null > /tmp/.tripwire_evals_handoff && needs_human /tmp/.tripwire_evals_handoff; } | sort -u)
+  nh=$(needs_human HANDOFF.md)
   echo "NEEDS HUMAN"
   if [ -n "$nh" ]; then echo "$nh" | sed 's/^/  /'; else echo "  (nothing)"; fi
   echo

@@ -119,3 +119,8 @@ def test_rdap_http_error_is_failed_check(monkeypatch):
     )
     ev = rdap.check_domain_age(["evil.top"])[0]
     assert ev.ok and ev.severity == "yellow"
+
+
+def test_incoming_payment_notice_is_not_a_payment_request():
+    text = "Venmo: Alex Kim paid you $24.50 for pizza"
+    assert "irreversible_payment" not in checks(check_script(text, extract(text)).evidence)
