@@ -27,6 +27,7 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
 - Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
+- **17:50 Sat:** resumed; origin/evals has no new commits; tests pass, ruff clean. Waiting only on phone re-test.
 - **17:40 Sat:** resumed again; origin/evals has no new commits, 90 tests pass, ruff clean. Nothing actionable except the human phone re-test; prompt stays frozen.
 - **17:30 Sat:** session resumed; origin/evals fully merged, 90 tests pass, ruff clean, README/SUBMISSION results consistent (tie 71.7%, no accuracy-win claim). Verdict prompt left frozen (matches benchmark). Waiting only on phone re-test; no further full eval runs allowed. Next: final report at 7:30 AM + tag v1.0.
 - **17:35 Sat:** merged final evals (full-v3-baseline-headroom); SUBMISSION Results filled (tie 71.7%; Tripwire 0 scam→safe vs 2, precision 88.9 vs 81.0). Remaining: README results sentence check, phone re-test, polish.
