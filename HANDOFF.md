@@ -6,18 +6,24 @@
 _(Things only the human can do: logins, keys, phone tests. Agents: add items here and keep working around them.)_
 - **Phone test**: start `.venv/bin/python -m src.main` (only ONE poller!) and text a scam message (see DEMO.md once written)
   to PHOTON_AGENT_HANDLE from PHOTON_TEST_SENDER. Photon's shared line only accepts messages from the assigned sender.
-- Image attachments over iMessage are untested on the shared line; code tries upload+send and falls back to text.
+- Image attachments over iMessage are untested on the shared line; code tries upload+send and falls back to a hosted link.
+- Demo site redeploy if needed: `.venv/bin/python -m demo_site.deploy` (Chalk ScalingGroup, ~1 replica, tiny cost).
 
 ## Status: Lead (Claude Code, `main`)
-- **Done:** contracts.py; investigator (extract → link/RDAP/script/payment checks → evidence-only verdict via Chalk
-  Model Gateway `anthropic/claude-sonnet-5-5`, deterministic floor/fallback); Photon poller + SQLite state + router
-  (help / why / context follow-ups / new case); CLI REPL. Live poll verified; Droid + gateway smoke tests pass.
-- **In progress:** Droid investigator step (`src/investigator/droid_agent.py`), registered in orchestrator `EXTRA_STEPS`.
+- **Done:** contracts; investigator (extract → link/RDAP/script/payment checks → **Droid** step → **Chalk sandbox
+  detonation** → evidence-only verdict via Chalk Model Gateway `anthropic/claude-sonnet-5-5`, deterministic
+  floor/fallback); Photon poller + SQLite state + router (help / why / context / new case); screenshot as iMessage
+  attachment w/ hosted-link fallback; demo site on Chalk ScalingGroup `tripwire-demo` (fictional PostalPlus trap at
+  `<url>/track`, URL in `data/demo_site_url.txt`). Full live run on demo text: scam/high, ~54 s.
+- **For Evals lane:** `investigate(msg)` = full pipeline (Droid ~50 s + sandbox, costs quota).
+  `from src.investigator.orchestrator import investigate; investigate(msg, steps=())` = checks + LLM verdict only
+  (~3 s); `steps=("detonation",)` adds the sandbox only. Suggest: full pipeline on ≤ 40 cases, checks+LLM on all.
 - **Next 3 steps:**
-  1. Droid step: per-case session in /tmp/tripwire-cases/<id>/, structured output → Evidence.
-  2. Detonation: Chalk sandbox + Playwright → redirect chain, page facts, screenshot (`src/detonation/`).
-  3. Demo scam landing page (fictional "PostalPlus") hosted somewhere harmless; DEMO.md; README sponsor sections.
-- **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it.
+  1. README (sponsor sections), DEMO.md, SUBMISSION.md drafts.
+  2. Robustness: 90 s hard cap with progress message, prompt-injection tests, image-only messages, rate limits.
+  3. Warm sandbox to cut detonation latency; "why" shows Droid analyses.
+- **Known bugs:** Gateway rejects `temperature` on Anthropic chat route — don't pass it. Photon attachment send on
+  shared line untested (falls back to hosted link).
 
 ## Status: Evals (Codex, `evals`)
 - **Done:** `4a4ec4c`: bounded Chalk gateway client + `baseline_classify()`, detailed failure/token metadata; 15 offline tests pass. Gateway + Chalk auth smoke tests passed Oct 17 13:54 ET. Default cheap model `anthropic/claude-haiku-5-5` confirmed available.
