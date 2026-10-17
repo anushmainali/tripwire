@@ -20,13 +20,15 @@ POLL_S = 2.5
 log = logging.getLogger("tripwire")
 
 
-def run_live() -> None:
+def run_live(channel=None, state: State | None = None, max_polls: int | None = None, poll_s: float = POLL_S) -> None:
+    """The live poller. `channel`/`state`/`max_polls` are injectable for offline tests."""
     from photon_api import ApiError
 
-    from src.channels.photon import PhotonChannel
+    if channel is None:
+        from src.channels.photon import PhotonChannel
 
-    channel = PhotonChannel()
-    state = State()
+        channel = PhotonChannel()
+    state = state or State()
     pool = ThreadPoolExecutor(max_workers=4)
     stopping = False
 
@@ -34,8 +36,9 @@ def run_live() -> None:
         nonlocal stopping
         stopping = True
 
-    signal.signal(signal.SIGINT, stop)
-    signal.signal(signal.SIGTERM, stop)
+    if max_polls is None:
+        signal.signal(signal.SIGINT, stop)
+        signal.signal(signal.SIGTERM, stop)
     log.info("Tripwire live on %s (%s). Polling every %.1fs.", channel.cfg.agent_handle, channel.cfg.platform, POLL_S)
 
     def send_image(target, path: str) -> bool:
@@ -82,14 +85,16 @@ def run_live() -> None:
             except Exception:  # noqa: BLE001
                 log.exception("failed to send error notice")
 
-    backoff = POLL_S
-    while not stopping:
+    backoff = poll_s
+    polls = 0
+    while not stopping and (max_polls is None or polls < max_polls):
+        polls += 1
         try:
             for msg, target in channel.poll():
                 if state.mark_seen(msg.message_id):
                     log.info("new message %s from %s…", msg.message_id, msg.sender[-4:])
                     pool.submit(work, msg, target)
-            backoff = POLL_S
+            backoff = poll_s
         except ApiError as error:
             log.warning("Photon API error %s (request %s)", error.status, error.request_id)
             backoff = min(backoff * 2, 30)
