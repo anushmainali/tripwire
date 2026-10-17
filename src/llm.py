@@ -70,7 +70,6 @@ def complete(
                 model=model,
                 messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                 max_tokens=max_tokens,
-                temperature=0,
             )
     except config.ConfigError:
         raise GatewayError("gateway_configuration_missing") from None

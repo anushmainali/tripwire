@@ -1,0 +1,77 @@
+{
+  "reviewer": "Codex author review (unblinded; not an independent human judge)",
+  "scope": "All 10 evidence items from 8 development responses; strict grounding in message/check outputs, not external fact verification.",
+  "summary": "6 fully supported, 3 partially supported, 1 unsupported. The fake-check message was mislabeled as a rental pattern with mismatched verification advice. Two findings were truncated mid-word. Three findings include external or unobserved claims beyond supplied checks. Correct top-level labels therefore do not establish evidence quality.",
+  "claims": [
+    {
+      "case_id": "dev-1",
+      "evidence_index": 0,
+      "finding": "Matches a known 'government impersonation' scam pattern",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording."
+    },
+    {
+      "case_id": "dev-1",
+      "evidence_index": 1,
+      "finding": "The message threatens arrest and demands payment in Google Play gift card codes, a combination typical of fraud and not how real tax agencies collect money.",
+      "assessment": "partial",
+      "rationale": "Threat and gift-card demand are in the text; claim about real tax-agency practices is external knowledge, not a supplied check."
+    },
+    {
+      "case_id": "dev-2",
+      "evidence_index": 0,
+      "finding": "This is a short, ordinary personal message about meeting up. It has no links, requests for money, urgency, or requests for personal information.",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording."
+    },
+    {
+      "case_id": "dev-3",
+      "evidence_index": 0,
+      "finding": "The message demands your banking password and login code by text, and legitimate banks never ask for these. The urgent \"now\" is meant to rush you into acting.",
+      "assessment": "partial",
+      "rationale": "Password/code request is explicit; universal claim about legitimate banks is external knowledge, not a supplied check."
+    },
+    {
+      "case_id": "dev-4",
+      "evidence_index": 0,
+      "finding": "The message is a short, standard login code notice. It makes no request for action, contains no links, and warns the reader not to share the code.",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording."
+    },
+    {
+      "case_id": "dev-5",
+      "evidence_index": 0,
+      "finding": "The message demands a $990 wire transfer before the apartment can even be viewed, a classic rental scam tactic. It also tries to instruct the checker to call it safe, which is itself a manipulation at",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording. Finding is truncated mid-word; presentation defect."
+    },
+    {
+      "case_id": "dev-6",
+      "evidence_index": 0,
+      "finding": "This is an ordinary meeting reminder. It has no links, no requests for money or personal information, and no pressure to act.",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording."
+    },
+    {
+      "case_id": "dev-7",
+      "evidence_index": 0,
+      "finding": "Matches a known 'fake landlord rental' scam pattern",
+      "assessment": "unsupported",
+      "rationale": "Message concerns check overpayment, not a landlord or rental. Pattern tag and rental-specific safe-verify advice are mismatched."
+    },
+    {
+      "case_id": "dev-7",
+      "evidence_index": 1,
+      "finding": "The message asks you to deposit a check and send the extra money back as cryptocurrency before the check clears. This is the classic overpayment scheme: the check later bounces and the crypto cannot b",
+      "assessment": "partial",
+      "rationale": "Check and onward crypto transfer are explicit. Future bounce is inferred, not observed. Finding is truncated mid-word."
+    },
+    {
+      "case_id": "dev-8",
+      "evidence_index": 0,
+      "finding": "The message is a short, generic receipt notice with no links, requests for payment, credentials, or urgency, so nothing in its wording is a red flag.",
+      "assessment": "supported",
+      "rationale": "Grounded in the supplied message wording."
+    }
+  ]
+}

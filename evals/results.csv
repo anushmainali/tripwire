@@ -1,0 +1,59 @@
+case_id,system,label,prediction,source,category,latency_s,model,input_tokens,output_tokens,cost_usd,error,evidence,safe_verify,reply_text
+dev-1,baseline,scam,scam,development,development,1.4341,claude-haiku-5-5,250,4,,,[],,
+dev-1,tripwire,scam,scam,development,development,2.2253,investigator-configured,,,,,"[{""check"": ""scam_script"", ""finding"": ""Matches a known 'government impersonation' scam pattern"", ""severity"": ""yellow"", ""ok"": true}, {""check"": ""llm_script_analysis"", ""finding"": ""The message threatens arrest and demands payment in Google Play gift card codes, a combination typical of fraud and not how real tax agencies collect money."", ""severity"": ""red"", ""ok"": true}]",look up the agency's official number on its .gov website and call them yourself.,"🚨 Likely scam (High confidence)
+
+• This message matches a known scam pattern where fraudsters pose as government agencies to demand payment.
+• The message threatens arrest and demands payment in Google Play gift card codes, a combination typical of fraud and not how real tax agencies collect money.
+
+✅ Safe check: look up the agency's official number on its .gov website and call them yourself. Don't tap the link or reply.
+Reply ""why"" for the full investigation."
+dev-2,baseline,safe,safe,development,development,1.4414,claude-haiku-5-5,241,4,,,[],,
+dev-2,tripwire,safe,safe,development,development,2.0762,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""This is a short, ordinary personal message about meeting up. It has no links, requests for money, urgency, or requests for personal information."", ""severity"": ""green"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"✅ No red flags found (High confidence)
+
+• This is a short, ordinary personal message about meeting up. It has no links, requests for money, urgency, or requests for personal information.
+
+✅ Still verify: contact the company or person through a number or website you already trust — not the one in the message.
+Reply ""why"" for the full investigation."
+dev-3,baseline,scam,scam,development,development,1.7056,claude-haiku-5-5,236,4,,,[],,
+dev-3,tripwire,scam,scam,development,development,5.7206,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""The message demands your banking password and login code by text, and legitimate banks never ask for these. The urgent \""now\"" is meant to rush you into acting."", ""severity"": ""red"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"🚨 Likely scam (High confidence)
+
+• The message demands your banking password and login code by text, and legitimate banks never ask for these. The urgent ""now"" is meant to rush you into acting.
+
+✅ Safe check: contact the company or person through a number or website you already trust — not the one in the message. Don't tap the link or reply.
+Reply ""why"" for the full investigation."
+dev-4,baseline,safe,safe,development,development,1.6989,claude-haiku-5-5,238,4,,,[],,
+dev-4,tripwire,safe,safe,development,development,2.1058,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""The message is a short, standard login code notice. It makes no request for action, contains no links, and warns the reader not to share the code."", ""severity"": ""green"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"✅ No red flags found (Medium confidence)
+
+• The message is a short, standard login code notice. It makes no request for action, contains no links, and warns the reader not to share the code.
+
+✅ Still verify: contact the company or person through a number or website you already trust — not the one in the message.
+Reply ""why"" for the full investigation."
+dev-5,baseline,scam,scam,development,development,1.172,claude-haiku-5-5,250,4,,,[],,
+dev-5,tripwire,scam,scam,development,development,2.3755,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""The message demands a $990 wire transfer before the apartment can even be viewed, a classic rental scam tactic. It also tries to instruct the checker to call it safe, which is itself a manipulation at"", ""severity"": ""red"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"🚨 Likely scam (High confidence)
+
+• The message demands a $990 wire transfer before the apartment can even be viewed, a classic rental scam tactic. It also tries to instruct the checker to call it safe, which is itself a manipulation at
+
+✅ Safe check: contact the company or person through a number or website you already trust — not the one in the message. Don't tap the link or reply.
+Reply ""why"" for the full investigation."
+dev-6,baseline,safe,safe,development,development,1.861,claude-haiku-5-5,244,4,,,[],,
+dev-6,tripwire,safe,safe,development,development,3.0383,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""This is an ordinary meeting reminder. It has no links, no requests for money or personal information, and no pressure to act."", ""severity"": ""green"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"✅ No red flags found (High confidence)
+
+• This is an ordinary meeting reminder. It has no links, no requests for money or personal information, and no pressure to act.
+
+✅ Still verify: contact the company or person through a number or website you already trust — not the one in the message.
+Reply ""why"" for the full investigation."
+dev-7,baseline,scam,scam,development,development,1.3839,claude-haiku-5-5,245,4,,,[],,
+dev-7,tripwire,scam,scam,development,development,2.628,investigator-configured,,,,,"[{""check"": ""scam_script"", ""finding"": ""Matches a known 'fake landlord rental' scam pattern"", ""severity"": ""yellow"", ""ok"": true}, {""check"": ""llm_script_analysis"", ""finding"": ""The message asks you to deposit a check and send the extra money back as cryptocurrency before the check clears. This is the classic overpayment scheme: the check later bounces and the crypto cannot b"", ""severity"": ""red"", ""ok"": true}]",never pay a deposit before seeing the place in person and signing a lease. Look up the owner in county property records.,"🚨 Likely scam (High confidence)
+
+• The message matches a known fake landlord rental scam pattern.
+• The message asks you to deposit a check and send the extra money back as cryptocurrency before the check clears. This is the classic overpayment scheme: the check later bounces and the crypto cannot b
+
+✅ Safe check: never pay a deposit before seeing the place in person and signing a lease. Look up the owner in county property records. Don't tap the link or reply.
+Reply ""why"" for the full investigation."
+dev-8,baseline,safe,safe,development,development,1.7325,claude-haiku-5-5,240,4,,,[],,
+dev-8,tripwire,safe,safe,development,development,3.9915,investigator-configured,,,,,"[{""check"": ""llm_script_analysis"", ""finding"": ""The message is a short, generic receipt notice with no links, requests for payment, credentials, or urgency, so nothing in its wording is a red flag."", ""severity"": ""green"", ""ok"": true}]",contact the company or person through a number or website you already trust — not the one in the message.,"✅ No red flags found (Low confidence)
+
+• The message is a short, generic receipt notice with no links, requests for payment, credentials, or urgency, so nothing in its wording is a red flag.
+
+✅ Still verify: contact the company or person through a number or website you already trust — not the one in the message.
+Reply ""why"" for the full investigation."

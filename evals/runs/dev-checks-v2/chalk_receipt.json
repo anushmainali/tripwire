@@ -1,0 +1,33 @@
+{
+  "evaluation_id": "cmvcpbq5z01uq013e1vpjshu2",
+  "run_id": "70688701-9271-407c-8e15-79f4ff336f64",
+  "status": "EvaluationRunStatus.SUCCEEDED",
+  "environment_id": "nknw3e7ec17c",
+  "method": "local inference; remote replay task and SQL scorers",
+  "result_dataset_id": "e05f6246-07b4-5698-8265-2d29911ce4c7",
+  "result_dataset_revision_id": "68fbc0da-9e28-41e8-af8e-92920a23d431",
+  "rows": 16,
+  "row_errors": 0,
+  "columns": [
+    "case_id",
+    "expected",
+    "inference_error",
+    "latency_s",
+    "prediction",
+    "source",
+    "system",
+    "__chalk__session_id__",
+    "__chalk__task_session_id__",
+    "output",
+    "output_error",
+    "correct_value",
+    "safe_case_value",
+    "scam_case_value",
+    "scam_prediction_value",
+    "scam_tp_value",
+    "false_positive_value",
+    "warning_fp_value",
+    "inference_failed_value"
+  ],
+  "verified": true
+}
