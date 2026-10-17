@@ -1,0 +1,20 @@
+{
+  "seed": 20261017,
+  "cases": 120,
+  "sha256": "4c131527c68e93c48f4bee6581f19fbb5482b49f0b57cffa60175b1ceada27cd",
+  "archives": {
+    "sms": {
+      "url": "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip",
+      "sha256": "1587ea43e58e82b14ff1f5425c88e17f8496bfcdb67a583dbff9eefaf9963ce3"
+    },
+    "urls": {
+      "url": "https://archive.ics.uci.edu/static/public/967/phiusiil+phishing+url+dataset.zip",
+      "sha256": "0a639fd03aea6308c5b1c10c92aa23c2ce1505447a9137271865cd0badc9a59a"
+    }
+  },
+  "labels": {
+    "safe": 60,
+    "scam": 50,
+    "suspicious": 10
+  }
+}
