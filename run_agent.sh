@@ -40,7 +40,8 @@ Keep working until the session ends. Never stop just because a step is finished;
 case "$LANE" in
   lead)
     WORKDIR="$REPO_ROOT"
-    run() { claude -p "$LEAD_PROMPT" --dangerously-skip-permissions; }
+    # Unset ANTHROPIC_API_KEY so Claude Code uses your logged-in Claude plan, not a stale API key.
+    run() { env -u ANTHROPIC_API_KEY claude -p "$LEAD_PROMPT" --dangerously-skip-permissions; }
     ;;
   evals)
     WORKDIR="$(cd "$REPO_ROOT/.." && pwd)/hh-evals"
