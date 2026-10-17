@@ -78,7 +78,9 @@ def investigate(
         screenshot = screenshot or extras.get("screenshot_path")
         scam_type = scam_type or extras.get("scam_type")
     advice = safe_verify(entities.claimed_brand, scam_type)
-    result = verdict_mod.build_verdict(msg.text, evidence, scam_type, advice, context, use_llm=use_llm, note=note)
+    result = verdict_mod.build_verdict(
+        msg.text, evidence, scam_type, advice, context, use_llm=use_llm, note=note, has_links=bool(entities.urls)
+    )
     result.screenshot_path = screenshot
     result.debug.update(debug)
     result.debug["latency_s"] = round(time.monotonic() - started, 2)

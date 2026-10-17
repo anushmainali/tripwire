@@ -20,4 +20,4 @@ select = ["E", "F", "W", "I", "B", "UP", "C4"]
 "smoke_tests/test_chalk_eval.py" = ["I001", "E401", "E501"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "evals"]
