@@ -90,6 +90,20 @@ def chalk_router() -> ChalkRouterConfig:
     return ChalkRouterConfig(api_key=_get("CHALK_ROUTER_API_KEY"), env_id=_get("CHALK_ENV_ID"))
 
 
+def shot_token() -> str | None:
+    """Shared token for uploading screenshots to the demo/screenshot host."""
+    return _get("TRIPWIRE_SHOT_TOKEN", required=False)
+
+
+def demo_site_url() -> str | None:
+    """Public URL of the Chalk-hosted demo site (env override, else written by `python -m demo_site.deploy`)."""
+    url = _get("TRIPWIRE_DEMO_URL", required=False)
+    if url:
+        return url.rstrip("/")
+    path = ROOT / "data" / "demo_site_url.txt"
+    return path.read_text().strip().rstrip("/") if path.exists() else None
+
+
 def describe() -> dict[str, dict[str, bool] | str]:
     """Which settings are present per service (True/False), never the values."""
     report: dict[str, dict[str, bool] | str] = {}

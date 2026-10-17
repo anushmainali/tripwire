@@ -35,6 +35,8 @@ BRANDS: dict[str, list[str]] = {
     "tmobile": ["t-mobile.com"],
     "ezpass": ["e-zpassny.com", "ezpassnj.com", "e-zpassiag.com", "ezdrivema.com"],
     "dmv": ["dmv.ca.gov", "dmv.ny.gov"],
+    # Fictional brand used only by our harmless demo trap page (demo_site/). Its "official" domain is reserved.
+    "postalplus": ["postalplus.example"],
 }
 
 # Phrases in the message text that indicate which brand the sender claims to be.
@@ -67,6 +69,7 @@ BRAND_ALIASES: dict[str, list[str]] = {
     "tmobile": ["t-mobile", "tmobile"],
     "ezpass": ["e-zpass", "ezpass", "e-z pass", "toll"],
     "dmv": ["dmv", "department of motor vehicles"],
+    "postalplus": ["postalplus", "postal plus"],
 }
 
 _TLDS = (

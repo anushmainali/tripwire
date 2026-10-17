@@ -11,6 +11,7 @@ BRAND_ADVICE = {
     "zelle": "Zelle has no customer 'refund' agents. Call the number on the back of your bank card.",
     "venmo": "open the Venmo app directly (not a link) and check your activity.",
     "cashapp": "open Cash App directly. Cash App support never asks for your PIN or a payment.",
+    "postalplus": "open the PostalPlus app or type its official website yourself and enter your tracking number.",
     "ezpass": "type your toll agency's official site into your browser yourself, or call the number on your statement.",
 }
 TYPE_ADVICE = {
