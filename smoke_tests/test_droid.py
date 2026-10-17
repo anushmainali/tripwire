@@ -10,9 +10,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-from dotenv import load_dotenv
 from droid_sdk import Autonomy, SessionConfig, run
 from pydantic import BaseModel
+
+from src import config
 
 SAMPLE_CSV = Path(__file__).parent / "data" / "sample.csv"
 EXPECTED = {"Boston": 95.33, "Phoenix": 22.33, "Seattle": 111.0}
@@ -37,7 +38,6 @@ averages it printed."""
 
 
 async def main() -> int:
-    load_dotenv()
     # Work in a throwaway directory so Droid never touches the repo.
     with tempfile.TemporaryDirectory(prefix="droid-smoke-") as workdir:
         shutil.copy(SAMPLE_CSV, workdir)
@@ -46,6 +46,7 @@ async def main() -> int:
             cwd=workdir,
             output=Result,
             timeout=300,
+            api_key=config.factory().api_key,  # None -> use the signed-in droid CLI session
             # MEDIUM allows edits and reversible commands like running a script;
             # anything needing approval is rejected instead of hanging.
             config=SessionConfig(autonomy=Autonomy.MEDIUM, auto_reject_permission_requests=True),

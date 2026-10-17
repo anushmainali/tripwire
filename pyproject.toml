@@ -1,0 +1,18 @@
+[project]
+name = "hackharvard"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.format]
+exclude = ["smoke_tests/test_photon.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4"]
+
+[tool.ruff.lint.per-file-ignores]
+# Kept verbatim from Photon's "Build an iMessage agent" guide; imports follow load_dotenv().
+"smoke_tests/test_photon.py" = ["E402", "I001", "C408", "UP017", "E501"]
