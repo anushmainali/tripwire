@@ -7,3 +7,4 @@ ruff==0.17.1
 chalkcompute==2.13.7
 pyarrow==26.0.0
 openai==3.33.0
+pytest==8.4.2
