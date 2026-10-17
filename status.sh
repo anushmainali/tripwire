@@ -13,8 +13,20 @@ STATE_FILE=".status_last_alert"
 
 needs_human() {
   # Lines under "## NEEDS HUMAN" (until the next "## "), minus the template hint line.
+  # Only bullet items count as requests; italic notes like "_(... done ...)_" are ignored.
   awk '/^## NEEDS HUMAN/{f=1;next} /^## /{f=0} f' "$1" 2>/dev/null \
-    | grep -v '^_(' | grep -v '^[[:space:]]*$'
+    | grep -E '^[[:space:]]*[-*] '
+}
+
+limit_wait() {
+  # $1 = lane. If the latest session failed because of a usage limit, print when it resets.
+  local log="logs/$1.log" last
+  last=$(grep -vE '^\[(Mon|Tue|Wed|Thu|Fri|Sat|Sun) ' "$log" 2>/dev/null \
+         | grep -iE 'usage limit|session limit|rate limit|try again at|resets' | tail -1)
+  # Only if the most recent exit was a failure (a limit hit), not an older message.
+  grep 'exited code=' "$log" 2>/dev/null | tail -1 | grep -q 'code=0' && return
+  [ -n "$last" ] || return
+  echo "$last" | grep -oiE '(try again at|resets) [0-9: ]*[ap]m' | tail -1
 }
 
 lane_health() {
@@ -25,7 +37,7 @@ lane_health() {
   # Count fast failures among the last 3 session exits.
   local fast
   fast=$(grep 'exited code=' "$log" | tail -3 | grep -v 'code=0' | grep -cE 'after ([0-9]|[0-9][0-9]|1[01][0-9])s')
-  if [ "$fast" -ge 3 ]; then
+  if [ "$fast" -ge 3 ] && [ -z "$(limit_wait "$1")" ]; then
     local err
     err=$(grep -vE '^\[' "$log" | grep -iE 'error|invalid|expired|auth|limit|login' | tail -1 | cut -c1-120)
     echo "$1: failing repeatedly (${err:-check logs/$1.log})"
@@ -46,6 +58,9 @@ show() {
   pgrep -f "claude -p" >/dev/null && echo "  Claude Code: working now" || echo "  Claude Code: idle / waiting"
   pgrep -f "codex exec" >/dev/null && echo "  Codex:       working now" || echo "  Codex:       idle / waiting"
   pgrep caffeinate >/dev/null && echo "  caffeinate:  on" || echo "  caffeinate:  OFF (Mac may sleep!)"
+  for lane in lead evals; do
+    lw=$(limit_wait "$lane"); [ -n "$lw" ] && echo "  $lane: paused for usage limit — $lw (normal, resumes automatically)"
+  done
   echo
 
   # Last watchdog events

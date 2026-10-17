@@ -4,9 +4,11 @@
 
 ## NEEDS HUMAN
 _(Things only the human can do: logins, keys, phone tests. Agents: add items here and keep working around them.)_
-- **Phone re-test requested (screenshot fix, 5 PM Sat):** text the PostalPlus demo message again; the screenshot link/attachment should now show the card form (not blank). Check `tmux`/log for `attachment send failed (... status= body=)` and tell Lead.
+_(Phone re-test PASSED 6:57 PM Sat: human texted the PostalPlus demo message, got the verdict, and the screenshot
+link works on the phone. Screenshot fix confirmed — no action needed. Ask for another phone test only after item 7
+changes the reply flow.)_
 
-## HUMAN TEST RESULTS — Lead: fix these next (priority over other polish)
+## HUMAN TEST RESULTS (2:15 PM test; screenshot issues below were FIXED and re-verified on a phone at 6:57 PM)
 Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TEST_SENDER:
 - ✅ Poller received the message; "Investigating" + verdict reply arrived on the phone. Core flow works.
 - ❌ **Screenshot link opened a blank white page on the phone.** Log: `src.detonation.sandbox: no page.html from sandbox:
@@ -43,8 +45,24 @@ status-only HANDOFF updates when nothing changed.
    known to produce the right verdict; a fallback plan if Photon/Chalk is down during judging (pre-recorded run log).
 6. **Moonshot (only after 1–5 are done and green):** live call co-pilot (SPEC.md §2), behind a feature flag, OFF by
    default, must not touch the text pipeline. Mark experimental.
+7. **NEW (added 6:55 PM Sat, human-approved): fix false alarms on legitimate messages. Verdict logic MAY change for this
+   item only** (the "don't change verdict logic" rule above is lifted for item 7).
+   - Known case: a plain 2FA/verification-code text ("Your Chase code is 482913. Don't share it.") returns
+     suspicious/low; should be safe. Look for the same pattern in other legit look-alikes: delivery notices from
+     official domains, bank alerts with no link/no payment ask, appointment reminders, "you paid X" receipts.
+   - **Do not tune on the frozen 120-case benchmark** (that would inflate the score). Write a NEW separate dev set
+     (`evals/fixtures/dev_false_alarms.jsonl`, ~20 legit + ~10 scam controls, clearly labeled dev-only) and use that
+     plus regression tests in `tests/` to verify: legit cases → safe, scam controls still → scam/suspicious.
+   - Never weaken real scam detection: a 2FA-style text that ALSO asks you to reply with/forward the code, or links
+     somewhere, must still be flagged.
+   - Leave the benchmark artifacts in `evals/runs/` untouched. In README.md and SUBMISSION.md, say the benchmark
+     measured build `<commit hash of the benchmarked build>`, and that later false-alarm fixes were verified on a separate
+     dev set and regression tests, not re-benchmarked. Report the dev-set before/after numbers honestly.
+   - Then re-run `scripts/demo_check.py`, re-check DEMO.md backup messages (the 2FA message can come back if it now
+     returns safe), keep all tests + ruff green, commit and push.
 
 ## Status: Lead (Claude Code, `main`)
+- **19:5x Sat:** queue 7 DONE: dev set `evals/fixtures/dev_false_alarms.jsonl` + `scripts/dev_false_alarms.py` + `tests/test_false_alarms.py`; fixed code-forwarding scam miss and "delivered today" urgency false alarm in `checks/script.py`. Chase 2FA text already safe. README/SUBMISSION note added. 126 tests pass.
 - **19:30 Sat:** queue 6 DONE as prototype: `src/copilot/call.py` (flag-gated, offline, tested; no voice transport). Whole work queue complete. Remaining: human phone re-test; final report at 7:30 AM + tag v1.0.
 - **19:15 Sat:** queue 3,4,5 DONE (grounded TLD wording; README Mermaid diagram; DEMO.md backups/shot list/fallback; docs/demo_run_log.txt from live demo_check). Remaining: queue 6 moonshot (call co-pilot, flag-gated, OFF) + phone re-test by human.
 - **18:50 Sat:** WORK QUEUE 1+2 DONE: `scripts/demo_check.py` (+`--warm`, in DEMO.md) passes live (37 s); hosted link is now a branded mobile report page (`/s/<id>`: screenshot, final URL/chain, red flags; image at `/s/<id>.jpg`); demo site redeployed. Next: queue 3 (evidence quality), 4 README, 5 demo assets.

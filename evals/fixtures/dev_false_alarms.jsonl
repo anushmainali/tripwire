@@ -1,0 +1,30 @@
+{"id": "legit00", "text": "Your Chase code is 482913. Don't share it.", "expected": "safe", "dev_only": true}
+{"id": "legit01", "text": "Your verification code is 771204. Never share this code with anyone.", "expected": "safe", "dev_only": true}
+{"id": "legit02", "text": "Google: G-583920 is your Google verification code.", "expected": "safe", "dev_only": true}
+{"id": "legit03", "text": "Your Uber code is 4821. Never share this code. Reply STOP to opt out.", "expected": "safe", "dev_only": true}
+{"id": "legit04", "text": "Chase: You made a $42.17 purchase at Trader Joe's with card ending 4421. No action needed.", "expected": "safe", "dev_only": true}
+{"id": "legit05", "text": "Reminder: your dentist appointment is tomorrow at 3:30 PM at Smile Dental. Reply C to confirm.", "expected": "safe", "dev_only": true}
+{"id": "legit06", "text": "Hi! Your prescription is ready for pickup at CVS Pharmacy on Main St. Store hours 8am-9pm.", "expected": "safe", "dev_only": true}
+{"id": "legit07", "text": "You paid $18.50 to Sam via Venmo for 'pizza'. Thanks for using Venmo!", "expected": "safe", "dev_only": true}
+{"id": "legit08", "text": "Your Amazon package was delivered today at 2:14 PM. Left at front door.", "expected": "safe", "dev_only": true}
+{"id": "legit09", "text": "UPS: Your package is scheduled for delivery tomorrow. Track at https://www.ups.com/track", "expected": "safe", "dev_only": true}
+{"id": "legit10", "text": "Hey are we still on for dinner at 7? I can pick you up.", "expected": "safe", "dev_only": true}
+{"id": "legit11", "text": "Mom: Don't forget grandma's birthday on Sunday, bring the cake!", "expected": "safe", "dev_only": true}
+{"id": "legit12", "text": "Your Lyft driver Maria is arriving in 3 minutes in a white Honda Civic.", "expected": "safe", "dev_only": true}
+{"id": "legit13", "text": "Bank of America: Your statement is ready. Log in to the app to view it.", "expected": "safe", "dev_only": true}
+{"id": "legit14", "text": "Your flight UA 482 to Boston is on time. Boarding begins at 5:40 PM, gate B12.", "expected": "safe", "dev_only": true}
+{"id": "legit15", "text": "Thanks for your payment of $120.00 to Comcast. Your confirmation number is 88213.", "expected": "safe", "dev_only": true}
+{"id": "legit16", "text": "Landlord here: the plumber is coming Thursday between 10 and 12. Let me know if that works.", "expected": "safe", "dev_only": true}
+{"id": "legit17", "text": "Your Zelle payment of $50 to Jake was sent. Questions? Open your banking app.", "expected": "safe", "dev_only": true}
+{"id": "legit18", "text": "Hi, this is Dr. Patel's office confirming your visit on Oct 21 at 9:00 AM. Call us if you need to reschedule.", "expected": "safe", "dev_only": true}
+{"id": "legit19", "text": "Venmo: Alex paid you $25.00 for 'rent split'.", "expected": "safe", "dev_only": true}
+{"id": "scam00", "text": "Your Chase code is 482913. Reply with the code to cancel this unauthorized transfer.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam01", "text": "Chase Fraud Dept: we sent you a code. Read it to our agent when they call or your account will be frozen today.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam02", "text": "USPS: your package is on hold, unpaid $1.99 redelivery fee. Pay at http://usps-redeliver-fee.top/pay within 24 hours", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam03", "text": "Hi it's mom, my phone broke. Please send $800 by Zelle to my friend now, don't tell dad.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam04", "text": "IRS final notice: you owe back taxes. Pay with gift cards immediately or a warrant will be issued for your arrest.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam05", "text": "Congrats! You won a $500 Walmart gift card. Claim with a $3 fee at http://walmart-reward.xyz", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam06", "text": "Your account is locked. Verify your identity and enter your card number and CVV at http://secure-bank-login.top", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam07", "text": "Landlord out of the country, send the deposit via Zelle to hold the apartment, I'll mail keys after.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam08", "text": "Remote job $400/day data entry. We'll deposit a check, send back the excess via Cash App before it clears.", "expected": "scam_or_suspicious", "dev_only": true}
+{"id": "scam09", "text": "Invest in crypto with guaranteed returns, send USDT to this wallet to start earning.", "expected": "scam_or_suspicious", "dev_only": true}

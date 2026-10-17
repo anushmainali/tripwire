@@ -51,6 +51,10 @@ URGENCY = r"\b(urgent|immediately|within \d+ ?(hours?|hrs?|minutes?|mins?)|today
 SECRECY = r"\b(don'?t tell|keep (this|it) (between|secret|private)|confidential|do not share)\b"
 IRREVERSIBLE = r"\b(gift ?cards?|wire transfer|western union|moneygram|zelle|crypto|bitcoin|btc|usdt|bitcoin atm|cash ?app|venmo)\b"  # noqa: E501
 CREDENTIALS = r"\b(password|ssn|social security number|pin|verification code|one[- ]time code|card number|cvv|login)\b"
+CODE_REQUEST = (
+    r"\b(reply|respond|text|send|forward|read|give|share|provide|tell)\b[^.!?]{0,30}\b(the|that|this|your|us the) "
+    r"(\w+ )?(code|otp|pin)\b(?! (is|was))|\bread (it|the code) (out )?to (our|the) (agent|representative)"
+)
 OTP_LEGIT = (
     r"\b(your|the) (verification|security|one[- ]time) code is\b|\bcode:? ?\d{4,8}\b.*\b(don'?t share|never ask)"
 )
@@ -74,7 +78,8 @@ def check_script(text: str, entities: Entities) -> ScriptResult:
     scam_type = matched[0] if matched else None
     if scam_type:
         out.append(Evidence("scam_script", f"Matches a known '{scam_type.replace('_', ' ')}' scam pattern", "yellow"))
-    if _has(URGENCY, t):
+    t_urgency = re.sub(r"\b(delivered|paid|received|arrived|completed|posted|sent) (\w+ ){0,3}today\b", "", t)
+    if _has(URGENCY, t_urgency):
         out.append(Evidence("urgency", "Pressures you to act fast — a classic scam tactic", "yellow"))
     if _has(SECRECY, t):
         out.append(Evidence("secrecy", "Asks you to keep it secret", "red"))
@@ -87,7 +92,14 @@ def check_script(text: str, entities: Entities) -> ScriptResult:
                 "red",
             )
         )
-    if _has(CREDENTIALS, t) and _has(r"\b(enter|confirm|verify|send|provide|update|reply with)\b", t):
+    t_ask = re.sub(
+        r"\b(never|don'?t|do not|not|won'?t|will not) (ever )?(\w+ ){0,2}?(share|send|give|tell|forward|read|reply)\b",
+        " ",
+        t,
+    )
+    if _has(CODE_REQUEST, t_ask):
+        out.append(Evidence("credential_request", "Asks you to hand over or forward a security code", "red"))
+    elif _has(CREDENTIALS, t) and _has(r"\b(enter|confirm|verify|send|provide|update|reply with)\b", t):
         if _has(OTP_LEGIT, t):
             out.append(
                 Evidence("otp_notice", "Looks like a standard one-time-code notice that warns not to share it", "green")

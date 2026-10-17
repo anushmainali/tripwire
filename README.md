@@ -156,6 +156,9 @@ Tripwire uses four Chalk products:
 3. **Evaluations (benchmark)** — [`evals/`](evals/): a labeled dataset of 120 cases, and runs of baseline vs Tripwire
    that are uploaded and scored with Chalk Evaluations SQL scorers. See [Evals and results](#evals-and-results).
 
+> **Note on builds:** the benchmark measured source build `f754dc8` (frozen). Later false-alarm fixes (code-forwarding requests flagged; past-tense "delivered today" no longer counts as urgency) were checked on a separate dev-only set (`evals/fixtures/dev_false_alarms.jsonl`, 20 legit + 10 scam controls) and regression tests, and were **not** re-benchmarked. Dev set, deterministic checks only: 2 mistakes before (1 false alarm, 1 missed scam), 0 after; with the verdict LLM 0 before and after. It is a small dev set, not an accuracy claim.
+
+
 4. **Feature engine (domain-risk features)** — [`chalk_features/domain_features.py`](chalk_features/domain_features.py):
    a `Domain` feature class deployed with `chalk apply`. Brand-token, risky-TLD, hyphen and risk-point features are
    Chalk expressions compiled to native code, and `registered_days_ago` comes from an `@online` resolver that queries
