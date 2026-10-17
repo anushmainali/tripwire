@@ -67,7 +67,11 @@ def report(run_dir: Path, destination: Path):
             f"These {manifest['cases']} separate development messages validate integration only. "
             "They do not measure real-world scam detection or establish an advantage over the baseline.",
             "The frozen 120-case benchmark has not been run. "
-            "Droid and detonation are absent from this checks ablation.",
+            + (
+                "Droid is enabled; detonation is disabled in this development run."
+                if manifest["mode"] == "full"
+                else "Droid and detonation are absent from this checks ablation."
+            ),
             "",
         ]
     lines += [
@@ -91,6 +95,16 @@ def report(run_dir: Path, destination: Path):
         ("Mean USD / case", "mean_cost_usd", number),
     ]:
         lines.append(f"| {title} | {fmt(metrics['baseline'][key])} | {fmt(metrics['tripwire'][key])} |")
+    droid_rows = [r for r in rows if r["system"] == "tripwire"]
+    droid_success = sum((r.get("debug", {}).get("droid") or {}).get("success") is True for r in droid_rows)
+    script_cases = sum(bool((r.get("debug", {}).get("droid") or {}).get("scripts_written")) for r in droid_rows)
+    if manifest["mode"] == "full":
+        lines += [
+            "",
+            f"Droid runtime coverage: **{droid_success}/{len(droid_rows)} confirmed successful sessions**; "
+            f"{script_cases} cases report written analysis scripts. Failed or timed-out sessions are not "
+            "counted as successful tool use, even when a fallback verdict is correct.",
+        ]
     lines += [
         "",
         "Exact accuracy requires the correct three-class label and a successful call. Scam precision/recall "
