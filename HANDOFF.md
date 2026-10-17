@@ -50,6 +50,8 @@ Live iMessage test 2:14–2:15 PM Sat, demo PostalPlus text sent from PHOTON_TES
   project "Default"): `Domain` expression features + `@online` RDAP resolver. Domain-age check queries
   `domain.registered_days_ago` online (~150 ms), RDAP fallback. Redeploy: `cd chalk_features && chalk apply --force`
   (needs `.venv/bin` on PATH). No online store in env → no max_staleness/caching.
+- **Done:** Droid OS sandbox per case (deny-all network except localhost MCP; verified live); Droid model
+  claude-haiku-5-5 (~32 s); `scripts/run_tripwire.sh` supervisor; SUBMISSION.md refreshed.
 - **Next 3 steps:**
   1. Wait for evals full-v1 (Codex resumes ~18:52); then merge, fill SUBMISSION.md/README numbers.
   2. When evals full-v1 lands: merge, fill SUBMISSION.md Results + README numbers.
