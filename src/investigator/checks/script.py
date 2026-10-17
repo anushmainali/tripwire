@@ -40,6 +40,8 @@ SCAM_TYPES: dict[str, list[str]] = {
     "family_emergency": [
         r"\b(grandma|grandpa|mom|dad|it'?s me|new number)\b.*\b(jail|bail|accident|hospital|trouble|lost my phone)",
         r"\bdon'?t tell (mom|dad|anyone)\b",
+        r"\b(mom|mum|dad|grandma|grandpa)\b.*\b(new|temporary|temp|other) (number|phone)\b",
+        r"\bphone (broke|is broken|died|got stolen|was stolen)\b.*\b(pay|money|send|bill|transfer|help)",
     ],
     "tech_support": [r"\b(virus|infected|hacked|microsoft|apple support|geek squad|norton|mcafee)\b.*\b(call|renew)"],
     "prize_lottery": [r"\b(won|winner|prize|lottery|sweepstakes|gift card|reward)\b.*\b(claim|collect|fee)"],

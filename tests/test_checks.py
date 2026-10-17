@@ -124,3 +124,8 @@ def test_rdap_http_error_is_failed_check(monkeypatch):
 def test_incoming_payment_notice_is_not_a_payment_request():
     text = "Venmo: Alex Kim paid you $24.50 for pizza"
     assert "irreversible_payment" not in checks(check_script(text, extract(text)).evidence)
+
+
+def test_hi_mum_new_number():
+    text = "Hi Mom, my phone broke, this is my temporary number. Can you help me pay a bill?"
+    assert check_script(text, extract(text)).scam_type == "family_emergency"
