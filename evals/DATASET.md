@@ -28,7 +28,10 @@ not independently verified sender identity. PhiUSIIL labels date to the corpus a
 may not describe a site's current state; expired or reassigned URLs are a limitation.
 Bare URLs also lack the conversation context available in other strata.
 
-All `detonate` flags are false. The benchmark must not visit any case URL on the
+Frozen `detonate` flags default to false. Benchmark v1 selects exactly three cases
+by CLI before predictions: `url-69188` (first phishing URL in frozen order),
+`url-154131` (first benign URL), and `synthetic-039` (official-domain delivery notice).
+The run saves these effective input flags and selected IDs in its manifest. The benchmark must not visit any case URL on the
 laptop. RDAP may contact registries only. Enable any small detonation sample only
 through the Lead's verified Chalk sandbox path, and report its exact size separately.
 Synthetic scam hosts use reserved `.example` domains; failure to resolve them is

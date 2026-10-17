@@ -1,0 +1,31 @@
+{
+  "method": "inert source capture and AST review hints; scripts are never executed by this audit",
+  "scripts": [
+    {
+      "case_id": "dev-1",
+      "file": "droid_artifacts/dev-1/analyze_message.py.txt",
+      "sha256": "9a284d1f6d1caff6aab16de9f49c5db4e3b7b247adf84c077c848c41b9eb5031",
+      "review_flags": []
+    },
+    {
+      "case_id": "dev-3",
+      "file": "droid_artifacts/dev-3/analyze_message.py.txt",
+      "sha256": "6c528bffde0d28ddb3d81e706ecc195880eea447a62a5e138ebb71df5e231273",
+      "review_flags": []
+    },
+    {
+      "case_id": "dev-5",
+      "file": "droid_artifacts/dev-5/analyze_message.py.txt",
+      "sha256": "bb4b7ad7f5297a8d6207f37739cb85b8148930bb40fadc0666d6a84f5fef924d",
+      "review_flags": []
+    },
+    {
+      "case_id": "dev-7",
+      "file": "droid_artifacts/dev-7/analyze_message.py.txt",
+      "sha256": "be367e54c720d3851a266f8c3a45bc294b292d262b7ceed0ba0b6726e1c5e8c3",
+      "review_flags": []
+    }
+  ],
+  "script_cases": 4,
+  "flagged_scripts": 0
+}

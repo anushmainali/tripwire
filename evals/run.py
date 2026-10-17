@@ -1,4 +1,4 @@
-"""Resumable, sequential benchmark with a hard process timeout per case.
+"""Resumable, bounded-concurrency benchmark with a hard process timeout per case.
 
 Default: 8 separate development messages, not the frozen benchmark. Use --full-run
 only after integration is verified. Never starts Photon or fetches submitted URLs.
@@ -10,8 +10,10 @@ import hashlib
 import json
 import multiprocessing
 import os
+import signal
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -61,6 +63,7 @@ def child(send, row: dict, system: str, mode: str, model: str):
     """No exception bodies or SDK logging escape this worker."""
     import logging
 
+    os.setsid()  # Own process group: hard timeout also stops the Droid CLI and local descendants.
     logging.disable(logging.CRITICAL)
     try:
         if system == "baseline":
@@ -78,7 +81,7 @@ def child(send, row: dict, system: str, mode: str, model: str):
                 raise RuntimeError("Droid not available")
             steps = [] if mode == "checks" else [name for name in ALL_STEPS if name != "detonation"]
             if row.get("detonate") == "true":
-                raise RuntimeError("Detonation sample not enabled in this runner")
+                steps.append("detonation")
             verdict = investigate(IncomingMessage("eval-" + row["case_id"], "eval-offline", row["text"]), steps=steps)
             result = {
                 "prediction": verdict.label,
@@ -87,6 +90,7 @@ def child(send, row: dict, system: str, mode: str, model: str):
                 "evidence": [asdict(e) for e in verdict.evidence],
                 "reply_text": verdict.reply_text,
                 "safe_verify": verdict.safe_verify,
+                "screenshot_path": verdict.screenshot_path,
                 "debug": verdict.debug,
             }
         send.send(result)
@@ -111,12 +115,20 @@ def bounded(row: dict, system: str, mode: str, model: str, timeout: float = 90) 
             except EOFError:
                 pass
     finally:
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
         if proc.is_alive():
             proc.terminate()
         proc.join(timeout=2)
         if proc.is_alive():
             proc.kill()
             proc.join(timeout=2)
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
         receive.close()
     result = result or {"prediction": "suspicious", "error": "case_timeout_or_worker_exit", "evidence": []}
     result.update(
@@ -127,6 +139,8 @@ def bounded(row: dict, system: str, mode: str, model: str, timeout: float = 90) 
         system=system,
         latency_s=round(time.monotonic() - started, 4),
         cost_usd=None,
+        droid_requested=system == "tripwire" and mode == "full",
+        detonation_requested=system == "tripwire" and row.get("detonate") == "true",
     )
     return result
 
@@ -164,6 +178,8 @@ def main():
     parser.add_argument("--full-run", action="store_true")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--model", default="anthropic/claude-haiku-5-5")
+    parser.add_argument("--workers", type=int, default=1, choices=range(1, 6))
+    parser.add_argument("--detonate-case", action="append", default=[], help="Case ID to open only in Chalk; max 3")
     args = parser.parse_args()
     if args.full_run and args.mode != "full":
         parser.error("Full benchmark requires the real full investigator; use development cases for stubs/ablations.")
@@ -173,6 +189,13 @@ def main():
         if "droid" not in ALL_STEPS:
             parser.error("Full investigator not ready: Droid is not available; use --mode checks for development.")
     rows = cases(args.full_run)
+    selected = set(args.detonate_case)
+    if len(selected) > 3 or not selected.issubset({r["case_id"] for r in rows}):
+        parser.error("Select at most 3 known case IDs for sandbox detonation")
+    if selected and args.mode != "full":
+        parser.error("Detonation requires full mode")
+    for row in rows:
+        row["detonate"] = "true" if row["case_id"] in selected else "false"
     if len(rows) > 150:
         parser.error("Maximum 150 cases")
     args.out.mkdir(parents=True, exist_ok=True)
@@ -184,6 +207,8 @@ def main():
         "model": args.model,
         "full_run": args.full_run,
         "cases": len(rows),
+        "workers": args.workers,
+        "detonation_cases": sorted(selected),
     }
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
@@ -213,22 +238,28 @@ def main():
     done = {(r["case_id"], r["system"]) for r in results}
     if len(done) != len(results):
         parser.error("Duplicate saved predictions")
-    for row in rows:
-        for system in ("baseline", "tripwire"):
-            if (row["case_id"], system) in done:
-                continue
-            result = bounded(row, system, args.mode, args.model)
-            with output.open("a") as f:
-                f.write(json.dumps(result, ensure_ascii=False) + "\n")
-                f.flush()
-                os.fsync(f.fileno())
-            results.append(result)
-            print(
-                f"{len(results)}/{2 * len(rows)} {system} {row['case_id']} {result['prediction']} "
-                f"error={result.get('error') or 'none'}",
-                flush=True,
-            )
-            (args.out / "metrics.json").write_text(json.dumps(grouped(results), indent=2) + "\n")
+    jobs = [
+        (row, system) for row in rows for system in ("baseline", "tripwire") if (row["case_id"], system) not in done
+    ]
+    with ThreadPoolExecutor(max_workers=args.workers) as pool:
+        pending = {pool.submit(bounded, row, system, args.mode, args.model): (row, system) for row, system in jobs}
+        try:
+            for future in as_completed(pending):
+                result = future.result()
+                with output.open("a") as f:
+                    f.write(json.dumps(result, ensure_ascii=False) + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+                results.append(result)
+                print(
+                    f"{len(results)}/{2 * len(rows)} {result['system']} {result['case_id']} "
+                    f"{result['prediction']} error={result.get('error') or 'none'}",
+                    flush=True,
+                )
+                (args.out / "metrics.json").write_text(json.dumps(grouped(results), indent=2) + "\n")
+        finally:
+            for future in pending:
+                future.cancel()
     print("Complete; predictions and metrics persisted. No URLs were opened by the runner.")
 
 

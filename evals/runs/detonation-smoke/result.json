@@ -1,0 +1,29 @@
+{
+  "url": "https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/track",
+  "ok": true,
+  "error": null,
+  "final_url": "https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/redeliver?ref=sms",
+  "redirect_chain": [
+    "302 https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/track",
+    "200 https://nknw3e7ec17c-tripwire-demo.mdwje5.svls.customers.gcp.chalk.ai/redeliver?ref=sms"
+  ],
+  "status": 200,
+  "title": "PostalPlus - Redelivery Payment",
+  "has_password_field": false,
+  "has_card_field": true,
+  "has_ssn_field": false,
+  "form_count": 1,
+  "input_names": [
+    "text name name full name",
+    "text cardnumber cc-number 1234 5678 9012 3456 cc-number card number",
+    "text exp cc-exp cc-exp expiry (mm/yy)",
+    "text cvv cvv cvv"
+  ],
+  "brand_mentions": [
+    "postalplus"
+  ],
+  "text_excerpt": "PostalPlus Delivery\n\u26a0\ufe0f Your parcel PP-4471-2209-US is on hold due to an unpaid redelivery fee. Pay within 12 hours or it will be returned to sender.\nRedelivery fee\n$1.99\nFull name\nCard number\nExpiry (MM/YY)\nCVV\n Pay $1.99 now\nFictional brand \u00b7 Tripwire HackHarvard demo page \u00b7 form submits nowhere",
+  "screenshot_path": "/tmp/tripwire-detonations/bd91346bfe0a/shot.jpg",
+  "html_path": "/tmp/tripwire-detonations/bd91346bfe0a/page.html",
+  "duration_s": 3.69
+}

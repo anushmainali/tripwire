@@ -34,9 +34,8 @@ from the benchmark and can be used to debug integration.
 
 `stub` returns a visibly marked failed placeholder for Tripwire. `checks` runs
 real deterministic/RDAP checks and the verdict model, with no Droid/detonation.
-`full` includes Droid and requires the real integration. The runner currently
-excludes detonation explicitly; this limitation must be disclosed until the
-small sandbox sample is integrated. It never runs the Photon poller.
+`full` includes Droid and requires the real integration. Detonation is off by default; `--detonate-case ID` selects at most three cases
+for the production Chalk sandbox path. Record those IDs before predictions. It never runs the Photon poller.
 
 ## Full benchmark (shared budget: at most 3 runs, 150 cases each)
 
@@ -46,10 +45,12 @@ slot; resume them instead of starting another full run. Do not delete or reset
 the ledger to bypass the budget.
 
 ```bash
-../HackHarvard/.venv/bin/python -m evals.run --mode full --full-run --out evals/runs/full-v1
+../HackHarvard/.venv/bin/python -m evals.run --mode full --full-run --workers 2 --out evals/runs/full-v1 \
+  --detonate-case url-69188 --detonate-case url-154131 --detonate-case synthetic-039
 ```
 
-Each case runs in a child process with a 90-second limit. Runs are sequential.
+Each case runs in a child process with a 90-second limit. Default concurrency is one; `--workers` allows 1–5 (use two for the benchmark).
+Worker process groups are terminated on timeout, including local Droid descendants.
 An exclusive worktree lock prevents overlapping runs; append+fsync checkpoints
 each result. Resume checks input/code/model hashes and rejects duplicates,
 unknown IDs and changed labels. A crash-truncated final JSONL line is removed

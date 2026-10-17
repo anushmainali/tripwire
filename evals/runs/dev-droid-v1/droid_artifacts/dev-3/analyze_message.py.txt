@@ -1,0 +1,20 @@
+import json
+import re
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+message = (root / "message.txt").read_text()
+entities = json.loads((root / "entities.json").read_text())
+patterns = {
+    "banking_password_requested": r"\btext me your banking password\b",
+    "login_code_requested": r"\band login code\b",
+    "immediate_action_requested": r"\bnow\b",
+    "verification_pretext": r"\baccount verification\b",
+}
+results = {
+    name: bool(re.search(pattern, message, re.IGNORECASE))
+    for name, pattern in patterns.items()
+}
+results["urls_present"] = bool(entities.get("urls"))
+results["domains_present"] = bool(entities.get("domains"))
+print(json.dumps(results, indent=2))

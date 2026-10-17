@@ -1,0 +1,27 @@
+import json
+import re
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+message = (root / "message.txt").read_text()
+entities = json.loads((root / "entities.json").read_text())
+
+patterns = {
+    "gift_card_purchase": r"\bbuy\s+\$\d+(?:\.\d{2})?\s+in\s+Google\s+Play\s+cards\b",
+    "send_redemption_codes": r"\bsend\s+the\s+codes\b",
+    "urgency": r"\bnow\b",
+    "arrest_threat": r"\bto\s+stop\s+your\s+IRS\s+arrest\b",
+}
+evidence = {}
+for name, pattern in patterns.items():
+    match = re.search(pattern, message, re.IGNORECASE)
+    evidence[name] = match.group(0) if match else None
+
+print(json.dumps({
+    "evidence": evidence,
+    "government_agency_named": bool(re.search(r"\bIRS\b", message)),
+    "payment_product_named": bool(re.search(r"\bGoogle\s+Play\b", message)),
+    "extracted_link_count": len(entities.get("urls", [])),
+    "extracted_domain_count": len(entities.get("domains", [])),
+    "extracted_wallet_count": len(entities.get("crypto_addresses", [])),
+}, indent=2))
